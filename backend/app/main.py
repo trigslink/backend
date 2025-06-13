@@ -28,7 +28,17 @@ async def register_mcp(payload: MCPRegisterRequest):
     https_uri = mcp_manager.create_cloudflared_tunnel(local_url, service_name)
 
     # Register on blockchain
-    tx_hash = blockchain.register_mcp_on_chain(service_name, https_uri, int(price * 1e18), duration)
+    tx_hash = blockchain.register_on_chain(service_name, https_uri, int(price * 1e18), duration)
+
+    # Safe loading of DB
+    db = []
+    if DB_PATH.exists():
+        try:
+            with open(DB_PATH, "r") as f:
+                db = json.load(f)
+        except json.JSONDecodeError:
+            # Log if needed: print("Warning: db.json was empty or invalid. Reinitializing.")
+            db = []
 
     # Save metadata
     record = {
@@ -38,7 +48,6 @@ async def register_mcp(payload: MCPRegisterRequest):
         "https_uri": https_uri,
         "tx_hash": tx_hash
     }
-    db = json.load(open(DB_PATH)) if DB_PATH.exists() else []
     db.append(record)
     with open(DB_PATH, "w") as f:
         json.dump(db, f, indent=2)
