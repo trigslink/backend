@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./registered_mcps:/app/registered_mcps
+      - ./tunnel_logs:/app/tunnel_logs
+      - ./contracts:/app/contracts            # ✅ Mount it where code expects
+    env_file:
+      - ./backend/.env
