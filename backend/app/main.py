@@ -8,14 +8,13 @@ from uuid import uuid4
 import shutil
 import cloudinary
 import cloudinary.uploader
+import os
 
 app = FastAPI()
 
-# Directories
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "db.json"
 
-# Cloudinary config
 cloudinary.config( 
     cloud_name = "dgvb4ap8o", 
     api_key = "554578947371512", 
@@ -31,28 +30,25 @@ async def register_mcp(
     uid = str(uuid4())
 
     try:
-        # Get MCP metadata from blockchain using tx_hash
         metadata = blockchain.get_mcp_data_by_tx(tx_hash)
         if "error" in metadata:
             return JSONResponse(status_code=400, content={"status": "error", "message": metadata["error"]})
 
-        # Safely handle the uploaded image file
-        filename = str(logo.filename) if logo.filename else "uploaded_logo.png"
-        filename = filename.replace(" ", "_").strip()
-        temp_logo_path = f"/tmp/{uid}_{filename}"
+        original_filename = logo.filename
+        if not isinstance(original_filename, str):
+            original_filename = f"uploaded_logo_{uid}.png"
+
+        safe_filename = str(original_filename).replace(" ", "_")
+        temp_logo_path = os.path.join("/tmp", f"{uid}_{safe_filename}")
 
         with open(temp_logo_path, "wb") as buffer:
             shutil.copyfileobj(logo.file, buffer)
 
-        # Upload to Cloudinary
         cloudinary_result = cloudinary.uploader.upload(temp_logo_path)
         logo_url = cloudinary_result["secure_url"]
 
-        # Create tunnel via Cloudflared
-        local_port = 9002
-        https_uri = mcp_manager.create_cloudflared_tunnel(local_port)
+        https_uri = mcp_manager.create_cloudflared_tunnel(9002)
 
-        # Build and save record
         record = {
             "id": uid,
             "wallet": metadata["owner"],
@@ -65,7 +61,6 @@ async def register_mcp(
             "logo_url": logo_url
         }
 
-        # Load or initialize local database
         db = []
         if DB_PATH.exists():
             with open(DB_PATH, "r") as f:
@@ -78,7 +73,6 @@ async def register_mcp(
         with open(DB_PATH, "w") as f:
             json.dump(db, f, indent=2)
 
-        # Return successful response
         return {
             "status": "registered",
             "https_uri": https_uri,
