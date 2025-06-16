@@ -56,7 +56,7 @@ def get_mcp_data_by_wallet(wallet_address: str) -> Union[Dict[str, Any], Dict[st
 
 
 # Fetch metadata by looking up the event in the transaction logs
-def get_metadata_from_tx(tx_hash: str) -> Dict[str, Any]:
+def get_mcp_data_by_tx(tx_hash: str) -> Dict[str, Any]:
     try:
         receipt = w3.eth.get_transaction_receipt(tx_hash)
 
