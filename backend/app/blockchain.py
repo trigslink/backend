@@ -34,7 +34,7 @@ contract = w3.eth.contract(address=Web3.to_checksum_address(CONTRACT_ADDRESS), a
 def get_mcp_data_by_wallet(wallet_address: str) -> Union[Dict[str, Any], Dict[str, str]]:
     try:
         wallet = Web3.to_checksum_address(wallet_address)
-        data = contract.functions.getMcp(wallet).call()
+        data = contract.functions.getAllMcpsByAddress(wallet).call()
 
         # Adjust depending on your contract return values
         metadata = {
@@ -63,9 +63,11 @@ def get_mcp_data_by_tx(tx_hash: str) -> Dict[str, Any]:
         for log in receipt.logs:
             try:
                 event_data = contract.events.McpProviderRegistered().process_log(log)
-                wallet = event_data["args"]["owner"]
+                wallet = event_data["args"]["provider"]
+                print("Wallet from event:", wallet)
                 return get_mcp_data_by_wallet(wallet)
-            except Exception:
+            except Exception as e:
+                print("Failed to parse log:", e)
                 continue
 
         raise ValueError("No McpRegistered event found in transaction logs.")
