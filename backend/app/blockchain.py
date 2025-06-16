@@ -56,13 +56,13 @@ def get_mcp_data_by_wallet(wallet_address: str) -> Union[Dict[str, Any], Dict[st
 
 
 # Fetch metadata by looking up the event in the transaction logs
-def fetch_metadata_from_tx(tx_hash: str) -> Dict[str, Any]:
+def get_metadata_from_tx(tx_hash: str) -> Dict[str, Any]:
     try:
         receipt = w3.eth.get_transaction_receipt(tx_hash)
 
         for log in receipt.logs:
             try:
-                event_data = contract.events.McpRegistered().process_log(log)
+                event_data = contract.events.McpProviderRegistered().process_log(log)
                 wallet = event_data["args"]["owner"]
                 return get_mcp_data_by_wallet(wallet)
             except Exception:
