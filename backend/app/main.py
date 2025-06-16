@@ -31,12 +31,11 @@ async def register_mcp(
     uid = str(uuid4())
 
     try:
-        # ✅ Step 1: Get metadata from smart contract
+        
         metadata = blockchain.get_mcp_data_by_tx(tx_hash)
         if "error" in metadata:
             return JSONResponse(status_code=400, content={"status": "error", "message": metadata["error"]})
 
-        # ✅ Step 2: Upload logo to Cloudinary
         temp_logo_path = f"/tmp/{uid}_{logo.filename}"
         with open(temp_logo_path, "wb") as buffer:
             shutil.copyfileobj(logo.file, buffer)
@@ -44,11 +43,10 @@ async def register_mcp(
         cloudinary_result = cloudinary.uploader.upload(temp_logo_path)
         logo_url = cloudinary_result["secure_url"]
 
-        # ✅ Step 3: Create tunnel URL
+     
         local_port = 9002
         https_uri = mcp_manager.create_cloudflared_tunnel(local_port)
 
-        # ✅ Step 4: Save combined metadata locally
         record = {
             "id": uid,
             "wallet": metadata["owner"],
