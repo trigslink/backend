@@ -25,29 +25,28 @@ with open(os.path.join(os.path.dirname(__file__), "../contracts/McpProvider.json
 
     abi = contract_json["abi"]
 
-# Web3 connection and contract object
 w3 = Web3(Web3.HTTPProvider(INFURA_URL))
 contract = w3.eth.contract(address=Web3.to_checksum_address(CONTRACT_ADDRESS), abi=abi)
 
 
-# Fetch metadata for a wallet from smart contract
 def get_mcp_data_by_wallet(wallet_address: str) -> Union[Dict[str, Any], Dict[str, str]]:
     try:
         wallet = Web3.to_checksum_address(wallet_address)
         data = contract.functions.getAllMcpsByAddress(wallet).call()
 
-        # Adjust depending on your contract return values
-        metadata = {
-            "owner": wallet,
-            "service_name": data[0],
-            "price_usd": float(w3.from_wei(data[1], 'ether')),
-            "description": data[2],
-            "isActive": data[3],
-        }
+        if not data:
+            return {"error": "No MCP data found for this wallet."}
 
-        # Add duration if available
-        if len(data) > 4:
-            metadata["duration"] = data[4]
+        latest = data[-1]
+
+        metadata = {
+            "providerNonce": latest[0],
+            "owner": latest[1],
+            "amountPaid": float(Web3.from_wei(latest[2], 'ether')),
+            "service_name": latest[3],
+            "price_usd": float(latest[4]),
+            "description": latest[5]
+        }
 
         return metadata
 
@@ -55,7 +54,6 @@ def get_mcp_data_by_wallet(wallet_address: str) -> Union[Dict[str, Any], Dict[st
         return {"error": str(e)}
 
 
-# Fetch metadata by looking up the event in the transaction logs
 def get_mcp_data_by_tx(tx_hash: str) -> Dict[str, Any]:
     try:
         receipt = w3.eth.get_transaction_receipt(tx_hash)
@@ -70,7 +68,7 @@ def get_mcp_data_by_tx(tx_hash: str) -> Dict[str, Any]:
                 print("Failed to parse log:", e)
                 continue
 
-        raise ValueError("No McpRegistered event found in transaction logs.")
+        raise ValueError("No McpProviderRegistered event found in transaction logs.")
 
     except Exception as e:
-        raise RuntimeError(f"Error fetching data from tx: {e}")
+        return {"status": "error", "message": str(e)}
