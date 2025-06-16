@@ -6,3 +6,5 @@ aiofiles
 httpx
 uuid
 docker
+python-multipart
+cloudinary

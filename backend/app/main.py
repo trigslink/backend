@@ -1,60 +1,86 @@
-from fastapi import FastAPI, Form
-from pydantic import BaseModel
+from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.responses import JSONResponse
+from . import mcp_manager
+from . import blockchain  
 import json
 from pathlib import Path
 from uuid import uuid4
-
-from . import blockchain
-from . import mcp_manager
+import shutil
+import cloudinary
+import cloudinary.uploader
 
 app = FastAPI()
-DB_PATH = Path(__file__).resolve().parent / "db.json"
 
-class MCPRegisterRequest(BaseModel):
-    local_url: str
-    service_name: str
-    price: float = 0.0  # Optional for now
-    duration: int = 30  # Optional default to 30 days
+# Directories
+BASE_DIR = Path(__file__).resolve().parent
+DB_PATH = BASE_DIR / "db.json"
+
+# Cloudinary config
+cloudinary.config( 
+    cloud_name = "dgvb4ap8o", 
+    api_key = "554578947371512", 
+    api_secret = "hkAqofSS7beULMIujFqQwM_paM4",  
+    secure = True
+)
 
 @app.post("/register_mcp")
-async def register_mcp(payload: MCPRegisterRequest):
+async def register_mcp(
+    tx_hash: str = Form(...),
+    logo: UploadFile = File(...)
+):
     uid = str(uuid4())
-    service_name = payload.service_name
-    local_url = payload.local_url
-    price = payload.price
-    duration = payload.duration
 
-    # Start cloudflared tunnel to expose the local MCP
-    https_uri = mcp_manager.create_cloudflared_tunnel(local_url, service_name)
+    try:
+        # ✅ Step 1: Get metadata from smart contract
+        metadata = blockchain.get_mcp_data_by_tx(tx_hash)
+        if "error" in metadata:
+            return JSONResponse(status_code=400, content={"status": "error", "message": metadata["error"]})
 
-    # Register on blockchain
-    tx_hash = blockchain.register_on_chain(service_name, https_uri, int(price * 1e18), duration)
+        # ✅ Step 2: Upload logo to Cloudinary
+        temp_logo_path = f"/tmp/{uid}_{logo.filename}"
+        with open(temp_logo_path, "wb") as buffer:
+            shutil.copyfileobj(logo.file, buffer)
 
-    # Safe loading of DB
-    db = []
-    if DB_PATH.exists():
-        try:
+        cloudinary_result = cloudinary.uploader.upload(temp_logo_path)
+        logo_url = cloudinary_result["secure_url"]
+
+        # ✅ Step 3: Create tunnel URL
+        local_port = 9002
+        https_uri = mcp_manager.create_cloudflared_tunnel(local_port)
+
+        # ✅ Step 4: Save combined metadata locally
+        record = {
+            "id": uid,
+            "wallet": metadata["owner"],
+            "service_name": metadata["service_name"],
+            "description": metadata["description"],
+            "price": metadata["price_usd"],
+            "duration": metadata.get("duration", "N/A"),
+            "tx_hash": tx_hash,
+            "https_uri": https_uri,
+            "logo_url": logo_url
+        }
+
+        db = []
+        if DB_PATH.exists():
             with open(DB_PATH, "r") as f:
-                db = json.load(f)
-        except json.JSONDecodeError:
-            # Log if needed: print("Warning: db.json was empty or invalid. Reinitializing.")
-            db = []
+                try:
+                    db = json.load(f)
+                except json.JSONDecodeError:
+                    db = []
 
-    # Save metadata
-    record = {
-        "id": uid,
-        "name": service_name,
-        "local_url": local_url,
-        "https_uri": https_uri,
-        "tx_hash": tx_hash
-    }
-    db.append(record)
-    with open(DB_PATH, "w") as f:
-        json.dump(db, f, indent=2)
+        db.append(record)
+        with open(DB_PATH, "w") as f:
+            json.dump(db, f, indent=2)
 
-    return {
-        "status": "registered",
-        "https_uri": https_uri,
-        "tx_hash": tx_hash,
-        "message": "MCP successfully registered to the smart contract and stored locally."
-    }
+        return {
+            "status": "registered",
+            "https_uri": https_uri,
+            "tx_hash": tx_hash,
+            "message": "MCP stored and tunnel created",
+            "logo_url": logo_url,
+            "metadata": record
+        }
+
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})

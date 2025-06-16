@@ -23,9 +23,9 @@ def build_and_run_docker(mcp_path, exposed_port=9002):
     subprocess.Popen(["docker", "run", "-d", "-p", f"{exposed_port}:{exposed_port}", image_tag])
     return exposed_port
 
-def create_cloudflared_tunnel(local_url: str, service_name: str) -> str:
+def create_cloudflared_tunnel(local_url: str):
     os.makedirs(LOG_DIR, exist_ok=True)
-    log_file = LOG_DIR / f"{service_name}_{uuid.uuid4()}.log"
+    log_file = LOG_DIR / f"{uuid.uuid4()}.log"
 
     proc = subprocess.Popen(
         ["cloudflared", "tunnel", "--url", local_url],
