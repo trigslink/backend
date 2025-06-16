@@ -4,6 +4,7 @@ from typing import Union, Dict, Any
 from web3 import Web3
 from dotenv import load_dotenv
 
+# Load environment variables from .env file
 load_dotenv()
 
 # Load environment variables
@@ -11,24 +12,35 @@ INFURA_URL = os.getenv("INFURA_URL")
 CONTRACT_ADDRESS = os.getenv("CONTRACT_ADDRESS")
 CHAIN_ID = int(os.getenv("CHAIN_ID", "43113"))
 
+# Validate essential environment variables
+if not INFURA_URL or not CONTRACT_ADDRESS:
+    raise EnvironmentError("Missing INFURA_URL or CONTRACT_ADDRESS in environment variables.")
+
 # Load the contract ABI
-with open(os.path.join(os.path.dirname(__file__), "../contracts/McpProvider.json")) as f:
-    contract_json = json.load(f)
+try:
+    abi_path = os.path.join(os.path.dirname(__file__), "../contracts/McpProvider.json")
+    with open(abi_path, "r") as f:
+        contract_json = json.load(f)
 
-    if isinstance(contract_json, list):
-        if not contract_json:
-            raise ValueError("McpProvider.json is an empty list.")
-        contract_json = contract_json[0]
+    if isinstance(contract_json, dict):
+        abi = contract_json.get("abi")
+    elif isinstance(contract_json, list) and isinstance(contract_json[0], dict):
+        abi = contract_json[0].get("abi")
+    else:
+        raise ValueError("Invalid format in McpProvider.json")
 
-    if "abi" not in contract_json:
-        raise KeyError("The contract JSON does not contain an 'abi' key. Check the format of McpProvider.json.")
+    if not abi:
+        raise KeyError("ABI not found in McpProvider.json")
 
-    abi = contract_json["abi"]
+except Exception as e:
+    raise RuntimeError(f"Failed to load ABI: {e}")
 
+# Initialize Web3 and contract
 w3 = Web3(Web3.HTTPProvider(INFURA_URL))
 contract = w3.eth.contract(address=Web3.to_checksum_address(CONTRACT_ADDRESS), abi=abi)
 
 
+# Fetch metadata for a wallet address
 def get_mcp_data_by_wallet(wallet_address: str) -> Union[Dict[str, Any], Dict[str, str]]:
     try:
         wallet = Web3.to_checksum_address(wallet_address)
@@ -37,7 +49,7 @@ def get_mcp_data_by_wallet(wallet_address: str) -> Union[Dict[str, Any], Dict[st
         if not data:
             return {"error": "No MCP data found for this wallet."}
 
-        latest = data[-1]
+        latest = data[-1]  # Get the latest MCP record
 
         metadata = {
             "providerNonce": latest[0],
@@ -54,6 +66,7 @@ def get_mcp_data_by_wallet(wallet_address: str) -> Union[Dict[str, Any], Dict[st
         return {"error": str(e)}
 
 
+# Fetch metadata based on transaction hash by extracting from logs
 def get_mcp_data_by_tx(tx_hash: str) -> Dict[str, Any]:
     try:
         receipt = w3.eth.get_transaction_receipt(tx_hash)
