@@ -1,10 +1,23 @@
 version: '3.8'
 
 services:
-  backend:
-    build: ./backend
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.api
     ports:
       - "8000:8000"
+    volumes:
+      - ./registered_mcps:/app/registered_mcps
+      - ./tunnel_logs:/app/tunnel_logs
+      - ./contracts:/app/contracts
+    env_file:
+      - ./backend/.env
+
+  listener:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.listener
     volumes:
       - ./registered_mcps:/app/registered_mcps
       - ./tunnel_logs:/app/tunnel_logs

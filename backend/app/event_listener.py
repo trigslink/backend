@@ -1,6 +1,7 @@
 import json
 import time
 import os
+import traceback
 from web3 import Web3
 from pathlib import Path
 from dotenv import load_dotenv
@@ -51,13 +52,20 @@ def log_loop(event_filter, poll_interval=5):
             handle_event(event)
         time.sleep(poll_interval)
 
+
+
 def main():
     print("🟠 Starting Event Listener...")
-    event_filter = contract.events.McpProviderRegistered.create_filter(fromBlock=w3.eth.block_number - 100)
-    past_events = event_filter.get_all_entries()
-    for event in past_events:
-        handle_event(event)
-    log_loop(event_filter)
+    try:
+        start_block = max(w3.eth.block_number - 100, 0)
+        event_filter = contract.events.McpProviderRegistered.create_filter(from_block=start_block)
+        past_events = event_filter.get_all_entries()
+        for event in past_events:
+            handle_event(event)
+        log_loop(event_filter)
+    except Exception as e:
+        print("🔴 Event Listener crashed:")
+        traceback.print_exc()
 
 if __name__ == "__main__":
     main()
