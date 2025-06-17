@@ -3,7 +3,7 @@ import json
 from typing import Union, Dict, Any
 from web3 import Web3
 from dotenv import load_dotenv
-
+from pathlib import Path
 load_dotenv()
 
 INFURA_URL = os.getenv("INFURA_URL")
@@ -11,8 +11,8 @@ CONTRACT_ADDRESS = os.getenv("CONTRACT_ADDRESS")
 CHAIN_ID = int(os.getenv("CHAIN_ID", "43113"))
 
 try:
-    abi_path = os.path.join(os.path.dirname(__file__), "../contracts/McpProvider.json")
-    with open(abi_path, "r") as f:
+    ABI_PATH = Path(__file__).resolve().parent.parent / "contracts" / "McpProvider.json"
+    with open(ABI_PATH, "r") as f:
         contract_json = json.load(f)
 
     if "abi" not in contract_json:

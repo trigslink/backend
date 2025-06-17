@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   backend:
     build: ./backend
@@ -7,6 +8,6 @@ services:
     volumes:
       - ./registered_mcps:/app/registered_mcps
       - ./tunnel_logs:/app/tunnel_logs
-      - ./contracts:/app/contracts           
+      - ./contracts:/app/contracts
     env_file:
       - ./backend/.env
