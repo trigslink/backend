@@ -4,15 +4,15 @@ import os
 from web3 import Web3
 from pathlib import Path
 from dotenv import load_dotenv
+
 load_dotenv()
 ABI_PATH = Path(__file__).resolve().parent.parent / "contracts" / "McpProvider.json"
 
 with open(ABI_PATH) as f:
     abi = json.load(f)["abi"]
 
-w3 = Web3(Web3.HTTPProvider(os.getenv("INFURA_URL")))  
-contract_address = Web3.to_checksum_address(os.getenv("CONTRACT_ADDRESS")) 
-
+w3 = Web3(Web3.HTTPProvider(os.getenv("INFURA_URL")))
+contract_address = Web3.to_checksum_address(os.getenv("CONTRACT_ADDRESS"))
 contract = w3.eth.contract(address=contract_address, abi=abi)
 
 DB_PATH = Path(__file__).parent / "db.json"
@@ -53,7 +53,10 @@ def log_loop(event_filter, poll_interval=5):
 
 def main():
     print("🟠 Starting Event Listener...")
-    event_filter = contract.events.McpProviderRegistered.create_filter(from_block="latest")
+    event_filter = contract.events.McpProviderRegistered.create_filter(fromBlock=w3.eth.block_number - 100)
+    past_events = event_filter.get_all_entries()
+    for event in past_events:
+        handle_event(event)
     log_loop(event_filter)
 
 if __name__ == "__main__":
