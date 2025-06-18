@@ -8,3 +8,6 @@ uuid
 docker
 python-multipart
 cloudinary
+langchain
+openai
+langchain-community

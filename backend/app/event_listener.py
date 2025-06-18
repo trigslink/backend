@@ -35,12 +35,15 @@ def handle_event(event):
     nonce = event["args"]["providerNonce"]
     amount_paid = event["args"]["amountPaid"]
     tx_hash = event["transactionHash"].hex()
+    mcp_id = f"{provider.lower()}_{nonce}"
 
     record = {
+        "mcp_id": mcp_id,
         "wallet": provider,
         "provider_nonce": nonce,
         "amount_paid": str(amount_paid),
-        "tx_hash": tx_hash
+        "tx_hash": tx_hash,
+        "timestamp": time.time()
     }
 
     print("🟢 New MCP Event:", record)
@@ -51,8 +54,6 @@ def log_loop(event_filter, poll_interval=5):
         for event in event_filter.get_new_entries():
             handle_event(event)
         time.sleep(poll_interval)
-
-
 
 def main():
     print("🟠 Starting Event Listener...")
