@@ -1,4 +1,4 @@
-'''import os
+import os
 from web3 import Web3
 from dotenv import load_dotenv
 import json
@@ -15,4 +15,3 @@ with open(ABI_PATH) as f:
 
 w3 = Web3(Web3.HTTPProvider(INFURA_URL))
 contract = w3.eth.contract(address=Web3.to_checksum_address(CONSUMER_CONTRACT_ADDRESS), abi=consumer_abi)
-'''

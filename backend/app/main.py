@@ -24,7 +24,7 @@ cloudinary.config(
 )
 
 
-@app.post("/register_mcp")
+@app.post("/register_mcp")  # Registers a new MCP using tx_hash and uploads a logo
 async def register_mcp(
     tx_hash: str = Form(...),
     logo: UploadFile = File(...)
@@ -86,7 +86,7 @@ async def register_mcp(
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@app.get("/available_mcps")
+@app.get("/available_mcps")  # Returns list of all available MCPs with optional filters which is been provided in the providers side
 def get_available_mcps(
     service_name: str = Query(None),
     wallet: str = Query(None),
@@ -111,7 +111,7 @@ def get_available_mcps(
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@app.get("/my_mcps")
+@app.get("/my_mcps") # Fetches MCPs purchased by a given wallet from the smart contract
 def get_my_mcps(wallet: str):
     try:
         mcps = consumer_blockchain.contract.functions.getUserMcps(wallet).call()
@@ -120,7 +120,7 @@ def get_my_mcps(wallet: str):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@app.post("/agent_query")
+@app.post("/agent_query") # Sends user prompt to selected MCP agent for response
 async def agent_query(request: Request):
     try:
         data = await request.json()
@@ -140,5 +140,17 @@ async def agent_query(request: Request):
         result = run_agent_with_tool(openai_key, prompt, metadata_url, env_vars)
 
         return {"response": result}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+@app.get("/my_subscriptions") # Fetches MCPs purchased by a given wallet from the central database (subscription.json)
+def my_subscriptions(wallet: str):
+    try:
+        subs_path = BASE_DIR / "subscriptions.json"
+        if subs_path.exists():
+            with open(subs_path, "r") as f:
+                db = json.load(f)
+            return [sub for sub in db if sub["consumer"].lower() == wallet.lower()]
+        return []
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})

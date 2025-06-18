@@ -11,7 +11,8 @@ services:
       - ./registered_mcps:/app/registered_mcps
       - ./tunnel_logs:/app/tunnel_logs
       - ./contracts:/app/contracts
-      - ./backend/app/db.json:/app/app/db.json  
+      - ./backend/app/db.json:/app/app/db.json
+      - ./backend/app/subscriptions.json:/app/app/subscriptions.json  
     env_file:
       - ./backend/.env
 
@@ -23,6 +24,17 @@ services:
       - ./registered_mcps:/app/registered_mcps
       - ./tunnel_logs:/app/tunnel_logs
       - ./contracts:/app/contracts
-      - ./backend/app/db.json:/app/app/db.json  # 👈 MOUNT db.json
+      - ./backend/app/db.json:/app/app/db.json
+      - ./backend/app/subscriptions.json:/app/app/subscriptions.json  
+    env_file:
+      - ./backend/.env
+
+  consumer_listener:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.consumer_listener
+    volumes:
+      - ./contracts:/app/contracts
+      - ./backend/app/subscriptions.json:/app/app/subscriptions.json
     env_file:
       - ./backend/.env
