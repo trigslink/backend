@@ -11,6 +11,7 @@ services:
       - ./registered_mcps:/app/registered_mcps
       - ./tunnel_logs:/app/tunnel_logs
       - ./contracts:/app/contracts
+      - ./backend/app/db.json:/app/app/db.json  
     env_file:
       - ./backend/.env
 
@@ -22,5 +23,6 @@ services:
       - ./registered_mcps:/app/registered_mcps
       - ./tunnel_logs:/app/tunnel_logs
       - ./contracts:/app/contracts
+      - ./backend/app/db.json:/app/app/db.json  # 👈 MOUNT db.json
     env_file:
       - ./backend/.env

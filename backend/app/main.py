@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile,Request, File, Form, Query
+from fastapi import FastAPI, UploadFile, Request, File, Form, Query
 from fastapi.responses import JSONResponse
 from . import mcp_manager
 from . import blockchain
@@ -6,10 +6,9 @@ from . import consumer_blockchain
 from .AI.agents import run_agent_with_tool
 import json
 from pathlib import Path
-from uuid import uuid4
 import shutil
-import cloudinary
-import cloudinary.uploader
+import cloudinary  # type: ignore
+import cloudinary.uploader  # type: ignore
 import os
 
 app = FastAPI()
@@ -24,24 +23,23 @@ cloudinary.config(
     secure=True
 )
 
+
 @app.post("/register_mcp")
 async def register_mcp(
     tx_hash: str = Form(...),
     logo: UploadFile = File(...)
 ):
-    uid = str(uuid4())
-
     try:
         metadata = blockchain.get_mcp_data_by_tx(tx_hash)
         if "error" in metadata:
             return JSONResponse(status_code=400, content={"status": "error", "message": metadata["error"]})
 
-        original_filename = logo.filename
-        if not isinstance(original_filename, str):
-            original_filename = f"uploaded_logo_{uid}.png"
+        # Set MCP ID from wallet address + provider nonce
+        mcp_id = f"{metadata['owner'].lower()}_{metadata['providerNonce']}"
 
-        safe_filename = str(original_filename).replace(" ", "_")
-        temp_logo_path = os.path.join("/tmp", f"{uid}_{safe_filename}")
+        original_filename = logo.filename or f"uploaded_logo_{mcp_id}.png"
+        safe_filename = original_filename.replace(" ", "_")
+        temp_logo_path = os.path.join("/tmp", f"{mcp_id}_{safe_filename}")
 
         with open(temp_logo_path, "wb") as buffer:
             shutil.copyfileobj(logo.file, buffer)
@@ -52,7 +50,7 @@ async def register_mcp(
         https_uri = mcp_manager.create_cloudflared_tunnel(9002)
 
         record = {
-            "id": uid,
+            "id": mcp_id,
             "wallet": metadata["owner"],
             "service_name": metadata["service_name"],
             "description": metadata["description"],
@@ -112,10 +110,10 @@ def get_available_mcps(
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
+
 @app.get("/my_mcps")
 def get_my_mcps(wallet: str):
     try:
-        # example: contract.functions.getUserPurchases(wallet).call()
         mcps = consumer_blockchain.contract.functions.getUserMcps(wallet).call()
         return {"wallet": wallet, "mcps": mcps}
     except Exception as e:
@@ -131,17 +129,16 @@ async def agent_query(request: Request):
         openai_key = data["openai_api_key"]
         env_vars = data.get("env_vars", {})
 
-        # Locate MCP from db.json
         with open(DB_PATH, "r") as f:
             db = json.load(f)
-        
+
         mcp = next((item for item in db if item["id"] == mcp_id), None)
         if not mcp:
             return JSONResponse(status_code=404, content={"error": "MCP not found"})
 
         metadata_url = f"{mcp['https_uri']}/metadata"
-
         result = run_agent_with_tool(openai_key, prompt, metadata_url, env_vars)
+
         return {"response": result}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})

@@ -19,6 +19,7 @@ contract = w3.eth.contract(address=contract_address, abi=abi)
 DB_PATH = Path(__file__).parent / "db.json"
 
 def save_to_db(record):
+    print("🔵 Saving as Meta-Data to the Central Database")
     db = []
     if DB_PATH.exists():
         with open(DB_PATH, "r") as f:
