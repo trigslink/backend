@@ -50,7 +50,7 @@ async def register_mcp(
         https_uri = mcp_manager.create_cloudflared_tunnel(9002)
 
         record = {
-            "id": mcp_id,
+            "mcp_id": mcp_id,
             "wallet": metadata["owner"],
             "service_name": metadata["service_name"],
             "description": metadata["description"],
