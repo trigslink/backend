@@ -39,8 +39,13 @@ def handle_event(event):
     provider_nonce = event["args"]["providerNonce"]
     avax_paid = event["args"]["avaxPaid"]
 
+
+    provider_address = contract.functions.userSubscriptions(consumer, sub_id).call()[1]
+    mcp_id = f"{provider_address.lower()}_{provider_nonce}"
+
     record = {
         "wallet": consumer,
+        "mcp_id": mcp_id,  
         "sub_id": sub_id,
         "provider_nonce": provider_nonce,
         "avax_paid": str(avax_paid),

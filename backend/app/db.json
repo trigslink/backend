@@ -1,0 +1,21 @@
+[
+  {
+    "mcp_id": "0x77db66390b1d3de5d0a1220adae8b66b1a7409ef_1",
+    "wallet": "0x77db66390B1D3DE5d0A1220aDAe8B66b1a7409Ef",
+    "provider_nonce": 1,
+    "amount_paid": "6000000000000000000",
+    "tx_hash": "a1e96c2d9b104686ba570452519b4e0fbaa5274d1c903abc931f85c1e3c780b9",
+    "timestamp": 1750305479.805045
+  },
+  {
+    "mcp_id": "0x77db66390b1d3de5d0a1220adae8b66b1a7409ef_1",
+    "wallet": "0x77db66390B1D3DE5d0A1220aDAe8B66b1a7409Ef",
+    "service_name": "Trigslink",
+    "description": "The Indian Bengal Tiger",
+    "price": 20000000000.0,
+    "duration": "N/A",
+    "tx_hash": "0xa1e96c2d9b104686ba570452519b4e0fbaa5274d1c903abc931f85c1e3c780b9",
+    "https_uri": "https://wheel-enhance-hence-action.trycloudflare.com",
+    "logo_url": "https://res.cloudinary.com/dgvb4ap8o/image/upload/v1750305567/eenbj9jttgrwts1sa5bu.jpg"
+  }
+]
