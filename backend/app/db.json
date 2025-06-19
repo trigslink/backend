@@ -20,24 +20,5 @@
     "tx_hash": "0xddb7e361c8c832aff3d4218c9d33e5fc136f569ea28f0fc85f66279f702b0179",
     "https_uri": "https://diffs-anyway-lodge-campaigns.trycloudflare.com",
     "logo_url": "https://res.cloudinary.com/dgvb4ap8o/image/upload/v1750317594/uwllvsaqc51n3a35cgky.png"
-  },
-  {
-    "mcp_id": "0x77db66390b1d3de5d0a1220adae8b66b1a7409ef_9",
-    "wallet": "0x77db66390B1D3DE5d0A1220aDAe8B66b1a7409Ef",
-    "provider_nonce": 9,
-    "amount_paid": "6000000000000000000",
-    "tx_hash": "d331af36cb2ec4376adcebb4de9ef24248348fa5cdd4888f0348b7b36dd79177",
-    "timestamp": 1750317861.385973
-  },
-  {
-    "mcp_id": "0x77db66390b1d3de5d0a1220adae8b66b1a7409ef_9",
-    "wallet": "0x77db66390B1D3DE5d0A1220aDAe8B66b1a7409Ef",
-    "service_name": "Facebook/mcp",
-    "description": "This is Facebook mcp",
-    "price": 4e+16,
-    "duration": "N/A",
-    "tx_hash": "0xd331af36cb2ec4376adcebb4de9ef24248348fa5cdd4888f0348b7b36dd79177",
-    "https_uri": "https://memo-jewish-assembly-gd.trycloudflare.com",
-    "logo_url": "https://res.cloudinary.com/dgvb4ap8o/image/upload/v1750317881/cvvrcssx64vmtpgmxeec.png"
   }
 ]

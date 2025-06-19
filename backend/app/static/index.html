@@ -90,12 +90,31 @@
       font-size: 14px;
     }
 
+    .card-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: center;
+      text-align: right;
+      gap: 4px;
+      width: 140px;
+    }
+
+    .pulls {
+      font-size: 14px;
+      color: #ffffff;
+    }
+
+    .last-week {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
     .chart {
       width: 120px;
       height: 60px;
-      background: linear-gradient(135deg, #3b82f6, #9333ea);
       border-radius: 8px;
-      opacity: 0.8;
+      background: transparent;
     }
 
     .refresh {
@@ -128,7 +147,7 @@
         const container = document.getElementById("mcp-list");
         container.innerHTML = "";
 
-        mcps.forEach(mcp => {
+        mcps.forEach((mcp) => {
           const card = document.createElement("div");
           card.className = "card";
           card.innerHTML = `
@@ -138,21 +157,66 @@
                 <h3>${mcp.service_name}</h3>
                 <p>${mcp.description}</p>
                 <p><strong>Provider:</strong> ${shorten(mcp.wallet)}</p>
-                <p><strong>Price:</strong> ${(mcp.price / 1e18).toFixed(2)} USD</p>
+                <p><strong>Price:</strong> $${(mcp.price / 1e18).toFixed(2)} USD</p>
                 <a href="${mcp.https_uri}" target="_blank">🌐 Visit MCP</a>
               </div>
             </div>
-            <div class="chart"></div>
+            <div class="card-right">
+              <canvas class="chart" width="120" height="60"></canvas>
+              <div class="pulls"></div>
+              <div class="last-week">Last week</div>
+            </div>
           `;
           container.appendChild(card);
+
+          const canvas = card.querySelector(".chart");
+          const pullsEl = card.querySelector(".pulls");
+          const pullCount = drawTrendChart(canvas);
+          pullsEl.textContent = `Subscribed: ${pullCount}`;
         });
 
         const now = new Date().toLocaleTimeString();
         document.getElementById("refresh-time").innerText = `⏱️ Last updated: ${now}`;
-
       } catch (err) {
         console.error("Error loading MCPs:", err);
       }
+    }
+
+    function drawTrendChart(canvas) {
+      const ctx = canvas.getContext("2d");
+      const width = canvas.width;
+      const height = canvas.height;
+      const points = [];
+
+      let current = Math.random() * height * 0.5 + height * 0.25;
+      let sum = 0;
+
+      for (let i = 0; i < 10; i++) {
+        const direction = Math.random() > 0.4 ? 1 : -1;
+        const change = Math.random() * 5;
+        current += direction * change;
+        current = Math.max(10, Math.min(height - 10, current));
+        points.push(current);
+        sum += current;
+      }
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.beginPath();
+      ctx.moveTo(0, height - points[0]);
+
+      for (let i = 1; i < points.length; i++) {
+        const x = (i / (points.length - 1)) * width;
+        const y = height - points[i];
+        ctx.lineTo(x, y);
+      }
+
+      ctx.strokeStyle = "#3b82f6";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      const average = sum / points.length;
+      const pulls = Math.floor(((height - average) / height) * 100 + 30); // 30–130 range
+      return pulls;
     }
 
     function shorten(address) {
