@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, Request, File, Form, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from . import mcp_manager
 from . import blockchain
 from . import consumer_blockchain
@@ -15,6 +16,15 @@ app = FastAPI()
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "db.json"
+
+# Mount static directory
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+
+# Serve index.html on root path
+@app.get("/")
+def serve_index():
+    return FileResponse(BASE_DIR / "static" / "index.html")
+
 
 cloudinary.config(
     cloud_name="dgvb4ap8o",
@@ -34,7 +44,6 @@ async def register_mcp(
         if "error" in metadata:
             return JSONResponse(status_code=400, content={"status": "error", "message": metadata["error"]})
 
-        # Set MCP ID from wallet address + provider nonce
         mcp_id = f"{metadata['owner'].lower()}_{metadata['providerNonce']}"
 
         original_filename = logo.filename or f"uploaded_logo_{mcp_id}.png"
@@ -86,7 +95,7 @@ async def register_mcp(
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@app.get("/available_mcps")  # Returns list of all available MCPs with optional filters which is been provided in the providers side
+@app.get("/available_mcps")  # Returns list of all available MCPs with optional filters
 def get_available_mcps(
     service_name: str = Query(None),
     wallet: str = Query(None),
@@ -97,7 +106,6 @@ def get_available_mcps(
             with open(DB_PATH, "r") as f:
                 db = json.load(f)
 
-            # Optional filters
             if service_name:
                 db = [mcp for mcp in db if service_name.lower() in mcp["service_name"].lower()]
             if wallet:
@@ -111,7 +119,7 @@ def get_available_mcps(
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@app.get("/my_mcps") # Fetches MCPs purchased by a given wallet from the smart contract
+@app.get("/my_mcps")  # Fetches MCPs purchased by a given wallet from the smart contract
 def get_my_mcps(wallet: str):
     try:
         mcps = consumer_blockchain.contract.functions.getUserMcps(wallet).call()
@@ -120,7 +128,7 @@ def get_my_mcps(wallet: str):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@app.post("/agent_query") # Sends user prompt to selected MCP agent for response
+@app.post("/agent_query")  # Sends user prompt to selected MCP agent for response
 async def agent_query(request: Request):
     try:
         data = await request.json()
@@ -143,7 +151,8 @@ async def agent_query(request: Request):
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
-@app.get("/my_subscriptions") # Fetches MCPs purchased by a given wallet from the central database (subscription.json)
+
+@app.get("/my_subscriptions")  # Fetches MCPs purchased by a given wallet from subscriptions.json
 def my_subscriptions(wallet: str):
     try:
         subs_path = BASE_DIR / "subscriptions.json"

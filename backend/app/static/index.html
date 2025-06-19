@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Trigslink MCP Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #111827;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: linear-gradient(90deg, #1e3a8a, #2563eb);
+      padding: 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #fff;
+    }
+
+    .dashboard {
+      padding: 30px;
+    }
+
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .card {
+      display: flex;
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 16px;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: 0.3s ease;
+    }
+
+    .card:hover {
+      background: #374151;
+    }
+
+    .card-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #fff;
+    }
+
+    .details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .details h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #ffffff;
+    }
+
+    .details p {
+      margin: 0;
+      color: #d1d5db;
+      font-size: 14px;
+    }
+
+    .details a {
+      color: #60a5fa;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .chart {
+      width: 120px;
+      height: 60px;
+      background: linear-gradient(135deg, #3b82f6, #9333ea);
+      border-radius: 8px;
+      opacity: 0.8;
+    }
+
+    .refresh {
+      text-align: center;
+      font-size: 14px;
+      color: #9ca3af;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Trigslink - Live MCP Marketplace</h1>
+  </header>
+
+  <div class="dashboard">
+    <div class="cards" id="mcp-list">
+      <!-- MCP cards will load here -->
+    </div>
+    <div class="refresh" id="refresh-time"></div>
+  </div>
+
+  <script>
+    const API = "http://localhost:8000/available_mcps";
+
+    async function loadMCPs() {
+      try {
+        const res = await fetch(API);
+        const mcps = await res.json();
+        const container = document.getElementById("mcp-list");
+        container.innerHTML = "";
+
+        mcps.forEach(mcp => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <div class="card-left">
+              <img class="logo" src="${mcp.logo_url}" alt="logo">
+              <div class="details">
+                <h3>${mcp.service_name}</h3>
+                <p>${mcp.description}</p>
+                <p><strong>Provider:</strong> ${shorten(mcp.wallet)}</p>
+                <p><strong>Price:</strong> ${(mcp.price / 1e18).toFixed(2)} USD</p>
+                <a href="${mcp.https_uri}" target="_blank">🌐 Visit MCP</a>
+              </div>
+            </div>
+            <div class="chart"></div>
+          `;
+          container.appendChild(card);
+        });
+
+        const now = new Date().toLocaleTimeString();
+        document.getElementById("refresh-time").innerText = `⏱️ Last updated: ${now}`;
+
+      } catch (err) {
+        console.error("Error loading MCPs:", err);
+      }
+    }
+
+    function shorten(address) {
+      return address.slice(0, 6) + "..." + address.slice(-4);
+    }
+
+    loadMCPs();
+    setInterval(loadMCPs, 10000);
+  </script>
+</body>
+</html>
