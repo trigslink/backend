@@ -4,24 +4,86 @@
   <meta charset="UTF-8" />
   <title>Trigslink MCP Dashboard</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #111827;
-      color: #ffffff;
+      background: #0f172a;
+      color: #fff;
       margin: 0;
-      padding: 0;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: #1e293b;
+      height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo img {
+      height: 30px;
+    }
+
+    .sidebar h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .menu, .server-box {
+      background: #334155;
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    .cpu-chart {
+      margin-top: auto;
+    }
+
+    .cpu-chart canvas {
+      width: 100%;
+      height: 60px;
+    }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #111827;
     }
 
     header {
       background: linear-gradient(90deg, #1e3a8a, #2563eb);
-      padding: 20px;
-      text-align: center;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     header h1 {
-      margin: 0;
       font-size: 28px;
+      font-weight: 600;
       color: #fff;
+    }
+
+    .wallet-tag {
+      background: #1f2937;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      color: #e5e7eb;
     }
 
     .dashboard {
@@ -32,7 +94,7 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
-      max-width: 1000px;
+      max-width: 900px;
       margin: auto;
     }
 
@@ -44,11 +106,6 @@
       align-items: center;
       justify-content: space-between;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      transition: 0.3s ease;
-    }
-
-    .card:hover {
-      background: #374151;
     }
 
     .card-left {
@@ -58,7 +115,7 @@
       flex: 1;
     }
 
-    .logo {
+    .logo-square {
       width: 64px;
       height: 64px;
       border-radius: 10px;
@@ -84,20 +141,30 @@
       font-size: 14px;
     }
 
-    .details a {
-      color: #60a5fa;
-      text-decoration: none;
-      font-size: 14px;
+    .tags {
+      margin-top: 6px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .tag {
+      background: #374151;
+      padding: 2px 8px;
+      font-size: 12px;
+      color: #93c5fd;
+      border-radius: 6px;
     }
 
     .card-right {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      justify-content: center;
-      text-align: right;
-      gap: 4px;
-      width: 140px;
+      gap: 6px;
+    }
+
+    .chart {
+      width: 120px;
+      height: 60px;
     }
 
     .pulls {
@@ -110,31 +177,42 @@
       color: #9ca3af;
     }
 
-    .chart {
-      width: 120px;
-      height: 60px;
-      border-radius: 8px;
-      background: transparent;
-    }
-
-    .refresh {
-      text-align: center;
-      font-size: 14px;
-      color: #9ca3af;
-      margin-top: 20px;
+    .learn-link {
+      color: #60a5fa;
+      font-size: 12px;
+      margin-top: 4px;
+      text-decoration: underline;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Trigslink - Live MCP Marketplace</h1>
-  </header>
-
-  <div class="dashboard">
-    <div class="cards" id="mcp-list">
-      <!-- MCP cards will load here -->
+  <div class="sidebar">
+    <div class="logo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Chainlink_Logo.png" alt="Trigslink" />
+      <span>Trigslink</span>
     </div>
-    <div class="refresh" id="refresh-time"></div>
+    <div class="menu">
+      <h2>MCP Library</h2>
+    </div>
+    <div class="server-box">
+      <h2>Selected Servers</h2>
+      <p style="font-size: 12px; color: #94a3b8">Add your servers here</p>
+    </div>
+    <div class="cpu-chart">
+      <canvas id="cpuChart"></canvas>
+    </div>
+  </div>
+
+  <div class="main">
+    <header>
+      <h1>Your <span style="color:#3b82f6">Nodes</span>, Your <span style="color:#3b82f6">Control</span></h1>
+      <div class="wallet-tag">0xAb580...C9B</div>
+    </header>
+
+    <div class="dashboard">
+      <div class="cards" id="mcp-list"></div>
+    </div>
   </div>
 
   <script>
@@ -147,18 +225,25 @@
         const container = document.getElementById("mcp-list");
         container.innerHTML = "";
 
-        mcps.forEach((mcp) => {
+        mcps.forEach((mcp, index) => {
           const card = document.createElement("div");
           card.className = "card";
+          card.style.cursor = "pointer";  // Make it look clickable
+          card.onclick = () => {
+            window.location.href = `/static/detail.html?mcp_id=${encodeURIComponent(mcp.mcp_id)}`;
+          };
+
           card.innerHTML = `
             <div class="card-left">
-              <img class="logo" src="${mcp.logo_url}" alt="logo">
+              <img class="logo-square" src="${mcp.logo_url}" alt="logo">
               <div class="details">
-                <h3>${mcp.service_name}</h3>
+                <h3>mcp / ${mcp.service_name}</h3>
+                <p>Updated 2 days ago...</p>
                 <p>${mcp.description}</p>
-                <p><strong>Provider:</strong> ${shorten(mcp.wallet)}</p>
-                <p><strong>Price:</strong> $${(mcp.price / 1e18).toFixed(2)} USD</p>
-                <a href="${mcp.https_uri}" target="_blank">🌐 Visit MCP</a>
+                <div class="tags">
+                  <div class="tag">${mcp.category1 || "SOCIAL"}</div>
+                  <div class="tag">${mcp.category2 || "NETWORK"}</div>
+                </div>
               </div>
             </div>
             <div class="card-right">
@@ -167,33 +252,29 @@
               <div class="last-week">Last week</div>
             </div>
           `;
-          container.appendChild(card);
+                    container.appendChild(card);
 
           const canvas = card.querySelector(".chart");
           const pullsEl = card.querySelector(".pulls");
-          const pullCount = drawTrendChart(canvas);
-          pullsEl.textContent = `Subscribed: ${pullCount}`;
+          const pullCount = drawChart(canvas);
+          pullsEl.textContent = `Pulls: ${pullCount}`;
         });
-
-        const now = new Date().toLocaleTimeString();
-        document.getElementById("refresh-time").innerText = `⏱️ Last updated: ${now}`;
       } catch (err) {
         console.error("Error loading MCPs:", err);
       }
     }
 
-    function drawTrendChart(canvas) {
+    function drawChart(canvas) {
       const ctx = canvas.getContext("2d");
       const width = canvas.width;
       const height = canvas.height;
       const points = [];
-
-      let current = Math.random() * height * 0.5 + height * 0.25;
+      let current = Math.random() * height * 0.4 + height * 0.3;
       let sum = 0;
 
       for (let i = 0; i < 10; i++) {
         const direction = Math.random() > 0.4 ? 1 : -1;
-        const change = Math.random() * 5;
+        const change = Math.random() * 6;
         current += direction * change;
         current = Math.max(10, Math.min(height - 10, current));
         points.push(current);
@@ -203,24 +284,17 @@
       ctx.clearRect(0, 0, width, height);
       ctx.beginPath();
       ctx.moveTo(0, height - points[0]);
-
       for (let i = 1; i < points.length; i++) {
         const x = (i / (points.length - 1)) * width;
         const y = height - points[i];
         ctx.lineTo(x, y);
       }
-
       ctx.strokeStyle = "#3b82f6";
       ctx.lineWidth = 2;
       ctx.stroke();
 
       const average = sum / points.length;
-      const pulls = Math.floor(((height - average) / height) * 100 + 30); // 30–130 range
-      return pulls;
-    }
-
-    function shorten(address) {
-      return address.slice(0, 6) + "..." + address.slice(-4);
+      return Math.floor(((height - average) / height) * 100 + 30);
     }
 
     loadMCPs();
