@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Subscribed MCPs - Trigslink</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0f172a;
+      color: white;
+      display: flex;
+    }
+    .sidebar {
+      width: 250px;
+      background-color: #1e293b;
+      height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo img { height: 30px; }
+    .section {
+      background-color: #334155;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .main {
+      flex: 1;
+      background-color: #111827;
+      padding: 30px;
+    }
+    header {
+      background: linear-gradient(90deg, #1e3a8a, #2563eb);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { font-size: 24px; margin: 0; }
+    .wallet { background: #1f2937; padding: 8px 16px; border-radius: 999px; font-size: 14px; }
+    .stats {
+      display: flex;
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .stat-box {
+      background: #1f2937;
+      padding: 20px;
+      border-radius: 10px;
+      flex: 1;
+      text-align: center;
+    }
+    .stat-box h2 { margin: 0; font-size: 24px; color: #60a5fa; }
+    .stat-box p { margin-top: 4px; font-size: 14px; color: #9ca3af; }
+    table {
+      width: 100%;
+      margin-top: 30px;
+      background-color: #1f2937;
+      border-radius: 12px;
+      overflow: hidden;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid #334155;
+    }
+    th { background-color: #1e293b; font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    .logo-cell img {
+      width: 24px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Chainlink_Logo.png" alt="Trigslink" />
+      <span>Trigslink</span>
+    </div>
+    <div class="section">MCP Subscriptions</div>
+    <div class="section">CPU Usage</div>
+    <div class="section">AI Agent</div>
+  </div>
+
+  <div class="main">
+    <header>
+      <h1>Your <span style="color:#3b82f6">Nodes</span>, Your <span style="color:#3b82f6">Control</span></h1>
+      <div class="wallet" id="wallet-display">...</div>
+    </header>
+
+    <section class="stats">
+      <div class="stat-box">
+        <h2 id="total-subscriptions">0</h2>
+        <p>Total Subscriptions</p>
+      </div>
+      <div class="stat-box">
+        <h2 id="total-monthly">$0.00</h2>
+        <p>Paid This Month</p>
+      </div>
+      <div class="stat-box">
+        <h2 id="total-alltime">$0.00</h2>
+        <p>Total Paid All Time</p>
+      </div>
+    </section>
+
+    <table id="subscribed-list">
+      <thead>
+        <tr>
+          <th>Service Name</th>
+          <th>Date of Purchase</th>
+          <th>Expiration</th>
+          <th>Amount Paid</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const WALLET = "0x77db66390B1D3DE5d0A1220aDAe8B66b1a7409Ef"; // replace with actual user wallet
+    document.getElementById("wallet-display").textContent = WALLET.slice(0, 6) + "..." + WALLET.slice(-4);
+
+    async function loadSubscriptions() {
+      try {
+        const subsRes = await fetch(`http://localhost:8000/my_subscriptions?wallet=${WALLET}`);
+        const subs = await subsRes.json();
+
+        const mcpRes = await fetch("http://localhost:8000/available_mcps");
+        const allMcps = await mcpRes.json();
+
+        const tbody = document.querySelector("#subscribed-list tbody");
+        tbody.innerHTML = "";
+
+        let total = 0;
+
+        subs.forEach(sub => {
+            const mcp = allMcps.find(m => m.mcp_id.toLowerCase() === sub.mcp_id.toLowerCase());
+          if (!mcp) return;
+
+          const amount = parseFloat(sub.avax_paid) / 1e18 * (parseFloat(mcp.price) / 1e18 || 0.01); // fallback to some price
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td class="logo-cell"><img src="${mcp.logo_url}" /> ${mcp.service_name}</td>
+            <td>${new Date(sub.timestamp * 1000).toLocaleDateString()}</td>
+            <td>${new Date((sub.timestamp + 30 * 24 * 3600) * 1000).toLocaleDateString()}</td>
+            <td>$${(amount).toFixed(2)}</td>
+          `;
+          tbody.appendChild(row);
+          total += amount;
+        });
+
+        document.getElementById("total-subscriptions").textContent = subs.length;
+        document.getElementById("total-monthly").textContent = `$${(total).toFixed(2)}`;
+        document.getElementById("total-alltime").textContent = `$${(total).toFixed(2)}`;
+      } catch (e) {
+        console.error("Failed to load subscriptions:", e);
+      }
+    }
+
+    loadSubscriptions();
+  </script>
+</body>
+</html>

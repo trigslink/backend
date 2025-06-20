@@ -159,7 +159,7 @@ def my_subscriptions(wallet: str):
         if subs_path.exists():
             with open(subs_path, "r") as f:
                 db = json.load(f)
-            return [sub for sub in db if sub["consumer"].lower() == wallet.lower()]
+            return [sub for sub in db if sub["wallet"].lower() == wallet.lower()]
         return []
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
