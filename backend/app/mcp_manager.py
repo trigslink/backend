@@ -1,3 +1,4 @@
+'''
 import uuid
 import os
 import shutil
@@ -48,3 +49,4 @@ def create_cloudflared_tunnel(port: int) -> str:
                         return word
 
     raise RuntimeError("Failed to detect tunnel URL from cloudflared.")
+'''

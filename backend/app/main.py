@@ -8,8 +8,8 @@ from .AI.agents import run_agent_with_tool
 import json
 from pathlib import Path
 import shutil
-import cloudinary  # type: ignore
-import cloudinary.uploader  # type: ignore
+import cloudinary
+import cloudinary.uploader
 import os
 
 app = FastAPI()
@@ -17,14 +17,11 @@ app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "db.json"
 
-# Mount static directory
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
-# Serve index.html on root path
 @app.get("/")
 def serve_index():
     return FileResponse(BASE_DIR / "static" / "index.html")
-
 
 cloudinary.config(
     cloud_name="dgvb4ap8o",
@@ -33,8 +30,7 @@ cloudinary.config(
     secure=True
 )
 
-
-@app.post("/register_mcp")  # Registers a new MCP using tx_hash and uploads a logo
+@app.post("/register_mcp")
 async def register_mcp(
     tx_hash: str = Form(...),
     logo: UploadFile = File(...)
@@ -56,7 +52,7 @@ async def register_mcp(
         cloudinary_result = cloudinary.uploader.upload(temp_logo_path)
         logo_url = cloudinary_result["secure_url"]
 
-        https_uri = mcp_manager.create_cloudflared_tunnel(9002)
+        https_uri = metadata.get("https_uri") or mcp_manager.create_cloudflared_tunnel(9002)
 
         record = {
             "mcp_id": mcp_id,
@@ -64,7 +60,7 @@ async def register_mcp(
             "service_name": metadata["service_name"],
             "description": metadata["description"],
             "price": metadata["price_usd"],
-            "duration": metadata.get("duration", "N/A"),
+            "duration": "N/A",
             "tx_hash": tx_hash,
             "https_uri": https_uri,
             "logo_url": logo_url
@@ -95,7 +91,7 @@ async def register_mcp(
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@app.get("/available_mcps")  # Returns list of all available MCPs with optional filters
+@app.get("/available_mcps")
 def get_available_mcps(
     service_name: str = Query(None),
     wallet: str = Query(None),
@@ -119,7 +115,7 @@ def get_available_mcps(
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@app.get("/my_mcps")  # Fetches MCPs purchased by a given wallet from the smart contract
+@app.get("/my_mcps")
 def get_my_mcps(wallet: str):
     try:
         mcps = consumer_blockchain.contract.functions.getUserMcps(wallet).call()
@@ -128,7 +124,7 @@ def get_my_mcps(wallet: str):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@app.post("/agent_query")  # Sends user prompt to selected MCP agent for response
+@app.post("/agent_query")
 async def agent_query(request: Request):
     try:
         data = await request.json()
@@ -140,7 +136,7 @@ async def agent_query(request: Request):
         with open(DB_PATH, "r") as f:
             db = json.load(f)
 
-        mcp = next((item for item in db if item["id"] == mcp_id), None)
+        mcp = next((item for item in db if item["mcp_id"] == mcp_id), None)
         if not mcp:
             return JSONResponse(status_code=404, content={"error": "MCP not found"})
 
@@ -152,7 +148,7 @@ async def agent_query(request: Request):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@app.get("/my_subscriptions")  # Fetches MCPs purchased by a given wallet from subscriptions.json
+@app.get("/my_subscriptions")
 def my_subscriptions(wallet: str):
     try:
         subs_path = BASE_DIR / "subscriptions.json"

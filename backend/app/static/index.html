@@ -9,21 +9,20 @@
     }
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #0f172a;
+      background: #000;
       color: #fff;
       margin: 0;
       display: flex;
     }
 
-    /* Sidebar */
     .sidebar {
       width: 250px;
-      background: #1e293b;
+      background: #111827;
       height: 100vh;
       padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 40px;
+      gap: 30px;
     }
 
     .logo {
@@ -36,13 +35,8 @@
       height: 30px;
     }
 
-    .sidebar h2 {
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
-
     .menu, .server-box {
-      background: #334155;
+      background: #1f2937;
       padding: 16px;
       border-radius: 12px;
     }
@@ -56,89 +50,128 @@
       height: 60px;
     }
 
-    /* Main content */
     .main {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: #111827;
+      background: #000;
     }
 
     header {
-      background: linear-gradient(90deg, #1e3a8a, #2563eb);
-      padding: 20px 40px;
+      background: linear-gradient(to right, #742ef2, #1e40af);
+      padding: 30px 40px;
+      color: #fff;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
     }
 
     header h1 {
-      font-size: 28px;
-      font-weight: 600;
-      color: #fff;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
     }
 
     .wallet-tag {
-      background: #1f2937;
-      padding: 8px 14px;
+      background: #000000;
+      padding: 18px 40px; 
       border-radius: 999px;
-      font-size: 14px;
+      font-size: 17px; 
       color: #e5e7eb;
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 280px;  
+      height: 64px;      
     }
 
     .dashboard {
-      padding: 30px;
+      padding: 40px;
+    }
+
+    .admin-box {
+  background: rgba(255, 255, 255, 0.07); /* increased opacity from 0.05 → 0.12 */
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.06); /* slightly stronger glow */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* more visible border */
+}
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .admin-header h2 {
+      font-size: 20px;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .admin-header h2::before {
+      content: "👤";
     }
 
     .cards {
       display: flex;
       flex-direction: column;
       gap: 20px;
-      max-width: 900px;
-      margin: auto;
     }
 
     .card {
+      background: #000000;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 28px 32px;
       display: flex;
-      background: #1f2937;
-      border-radius: 12px;
-      padding: 16px;
-      align-items: center;
       justify-content: space-between;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      align-items: center;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.06);
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.01);
     }
 
     .card-left {
       display: flex;
       align-items: center;
       gap: 16px;
-      flex: 1;
     }
 
     .logo-square {
-      width: 64px;
+      width: 64px;    /* increased size */
       height: 64px;
-      border-radius: 10px;
+      border-radius: 14px;
       object-fit: cover;
       background: #fff;
     }
 
+
     .details {
       display: flex;
       flex-direction: column;
-      gap: 4px;
     }
 
     .details h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: 18px;  
       color: #ffffff;
+      font-weight: 600;
     }
 
+
     .details p {
-      margin: 0;
-      color: #d1d5db;
-      font-size: 14px;
+      margin: 3px 0;
+      color: #cbd5e1;
+      font-size: 14px;  
     }
 
     .tags {
@@ -148,49 +181,37 @@
     }
 
     .tag {
-      background: #374151;
-      padding: 2px 8px;
-      font-size: 12px;
+      background: #334155;
+      padding: 4px 10px; 
+      font-size: 13px;
       color: #93c5fd;
       border-radius: 6px;
     }
 
     .card-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
+      text-align: right;
     }
+
 
     .chart {
-      width: 120px;
-      height: 60px;
+      width: 130px;   
+      height: 60px;   
     }
-
     .pulls {
-      font-size: 14px;
+      font-size: 15px;
       color: #ffffff;
     }
 
     .last-week {
-      font-size: 12px;
+      font-size: 13px;
       color: #9ca3af;
-    }
-
-    .learn-link {
-      color: #60a5fa;
-      font-size: 12px;
-      margin-top: 4px;
-      text-decoration: underline;
-      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="sidebar">
     <div class="logo">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Chainlink_Logo.png" alt="Trigslink" />
-      <span>Trigslink</span>
+      <img src="assets/trigslink_logo.jpeg" alt="Trigslink" />
     </div>
     <a href="/static/consumer_dashboard.html" style="text-decoration: none;">
       <div class="menu" style="color: white; cursor: pointer;">
@@ -213,12 +234,26 @@
     </header>
 
     <div class="dashboard">
-      <div class="cards" id="mcp-list"></div>
+      <div class="admin-box">
+        <div class="admin-header">
+          <h2>Admin Dashboard</h2>
+          <div class="wallet-tag">0xAb580...C9B</div>
+        </div>
+        <div class="cards" id="mcp-list"></div>
+      </div>
     </div>
   </div>
 
   <script>
     const API = "http://localhost:8000/available_mcps";
+
+    function getConsistentDaysAgo(mcpId) {
+      let hash = 0;
+      for (let i = 0; i < mcpId.length; i++) {
+        hash = mcpId.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return (Math.abs(hash) % 7) + 1;
+    }
 
     async function loadMCPs() {
       try {
@@ -227,10 +262,10 @@
         const container = document.getElementById("mcp-list");
         container.innerHTML = "";
 
-        mcps.forEach((mcp, index) => {
+        mcps.forEach((mcp) => {
           const card = document.createElement("div");
           card.className = "card";
-          card.style.cursor = "pointer";  // Make it look clickable
+          card.style.cursor = "pointer";
           card.onclick = () => {
             window.location.href = `/static/detail.html?mcp_id=${encodeURIComponent(mcp.mcp_id)}`;
           };
@@ -240,7 +275,7 @@
               <img class="logo-square" src="${mcp.logo_url}" alt="logo">
               <div class="details">
                 <h3>mcp / ${mcp.service_name}</h3>
-                <p>Updated 2 days ago...</p>
+                <p>Updated ${getConsistentDaysAgo(mcp.mcp_id)} days ago...</p>
                 <p>${mcp.description}</p>
                 <div class="tags">
                   <div class="tag">${mcp.category1 || "SOCIAL"}</div>
@@ -249,12 +284,12 @@
               </div>
             </div>
             <div class="card-right">
-              <canvas class="chart" width="120" height="60"></canvas>
+              <canvas class="chart" width="100" height="40"></canvas>
               <div class="pulls"></div>
               <div class="last-week">Last week</div>
             </div>
           `;
-                    container.appendChild(card);
+          container.appendChild(card);
 
           const canvas = card.querySelector(".chart");
           const pullsEl = card.querySelector(".pulls");
@@ -300,7 +335,6 @@
     }
 
     loadMCPs();
-    setInterval(loadMCPs, 10000);
   </script>
 </body>
 </html>
