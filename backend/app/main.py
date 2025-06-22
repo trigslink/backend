@@ -3,13 +3,13 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from . import mcp_manager
 from . import blockchain
-from . import consumer_blockchain
+from .consumer_blockchain import get_subscriptions
 from .AI.agents import run_agent_with_tool
 import json
 from pathlib import Path
 import shutil
-import cloudinary
-import cloudinary.uploader
+import cloudinary # type: ignore
+import cloudinary.uploader # type: ignore
 import os
 
 app = FastAPI()
@@ -52,17 +52,17 @@ async def register_mcp(
         cloudinary_result = cloudinary.uploader.upload(temp_logo_path)
         logo_url = cloudinary_result["secure_url"]
 
-        https_uri = metadata.get("https_uri") or mcp_manager.create_cloudflared_tunnel(9002)
+        https_uri = metadata.get("https_uri")
 
         record = {
             "mcp_id": mcp_id,
             "wallet": metadata["owner"],
-            "service_name": metadata["service_name"],
-            "description": metadata["description"],
-            "price": metadata["price_usd"],
+            "service_name": metadata["serviceName"],   
+            "description": metadata["serviceDescription"],  
+            "price": metadata["usdPriceForConsumerMonth"], 
             "duration": "N/A",
             "tx_hash": tx_hash,
-            "https_uri": https_uri,
+            "https_uri": metadata.get("url"),  
             "logo_url": logo_url
         }
 
@@ -117,11 +117,10 @@ def get_available_mcps(
 
 @app.get("/my_mcps")
 def get_my_mcps(wallet: str):
-    try:
-        mcps = consumer_blockchain.contract.functions.getUserMcps(wallet).call()
-        return {"wallet": wallet, "mcps": mcps}
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+    mcps = get_subscriptions(wallet)
+    if isinstance(mcps, dict) and "error" in mcps:
+        return JSONResponse(status_code=500, content=mcps)
+    return {"wallet": wallet, "mcps": mcps}
 
 
 @app.post("/agent_query")

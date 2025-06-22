@@ -47,10 +47,10 @@ def get_mcp_data_by_wallet(wallet_address: str) -> Union[Dict[str, Any], Dict[st
             "providerNonce": latest[0],
             "owner": latest[1],
             "amountPaid": float(Web3.from_wei(latest[2], 'ether')),
-            "service_name": latest[3],
-            "price_usd": float(latest[4]),
-            "description": latest[5],
-            "https_uri": latest[6]
+            "serviceName": latest[3],
+            "usdPriceForConsumerMonth": float(latest[4]),
+            "serviceDescription": latest[5],
+            "url": latest[6]
         }
 
         return metadata
@@ -86,10 +86,10 @@ def get_mcp_data_by_nonce(nonce: int) -> Dict[str, Any]:
         return {
             "providerNonce": details[0],
             "owner": details[1],
-            "service_name": details[2],
-            "price_usd": float(details[3]),
-            "description": details[4],
-            "https_uri": details[5]
+            "serviceName": details[2],
+            "usdPriceForConsumerMonth": float(details[3]),
+            "serviceDescription": details[4],
+            "url": details[5]
         }
 
     except Exception as e:

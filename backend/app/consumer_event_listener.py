@@ -34,26 +34,43 @@ def save_to_db(record):
         json.dump(db, f, indent=2)
 
 def handle_event(event):
-    consumer = event["args"]["consumer"]
-    sub_id = event["args"]["subId"]
-    provider_nonce = event["args"]["providerNonce"]
-    avax_paid = event["args"]["avaxPaid"]
+    try:
+        consumer = event["args"]["consumer"]
+        sub_id = event["args"]["subId"]
 
+        sub_data = contract.functions.userSubscriptions(consumer, sub_id).call()
+        provider_nonce = sub_data[0]
+        provider_address = sub_data[1]
+        amount_paid = Web3.from_wei(sub_data[2], 'ether')
+        start_timestamp = sub_data[3]
+        status_enum = sub_data[4]
+        uri = sub_data[5]
 
-    provider_address = contract.functions.userSubscriptions(consumer, sub_id).call()[1]
-    mcp_id = f"{provider_address.lower()}_{provider_nonce}"
+        status_map = {
+            0: "Active",
+            1: "Grace Period",
+            2: "Expired",
+            3: "Penalized"
+        }
 
-    record = {
-        "wallet": consumer,
-        "mcp_id": mcp_id,  
-        "sub_id": sub_id,
-        "provider_nonce": provider_nonce,
-        "avax_paid": str(avax_paid),
-        "timestamp": time.time()
-    }
+        record = {
+            "wallet": consumer,
+            "mcp_id": f"{provider_address.lower()}_{provider_nonce}",
+            "sub_id": sub_id,
+            "provider_nonce": provider_nonce,
+            "avax_paid": float(amount_paid),
+            "status": status_map.get(status_enum, "Unknown"),
+            "url": uri,
+            "start_timestamp": start_timestamp,
+            "timestamp": time.time()
+        }
 
-    print("🟢 New Subscription Event:", record)
-    save_to_db(record)
+        print("🟢 New Subscription Event:", record)
+        save_to_db(record)
+
+    except Exception:
+        print("🔴 Error in handle_event:")
+        traceback.print_exc()
 
 def log_loop(event_filter, poll_interval=5):
     while True:
@@ -66,10 +83,13 @@ def main():
     try:
         start_block = max(w3.eth.block_number - 100, 0)
         event_filter = contract.events.Subscribed.create_filter(from_block=start_block)
+
         past_events = event_filter.get_all_entries()
         for event in past_events:
             handle_event(event)
+
         log_loop(event_filter)
+
     except Exception:
         print("🔴 Consumer Event Listener crashed:")
         traceback.print_exc()

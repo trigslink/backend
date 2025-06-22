@@ -48,10 +48,10 @@ def handle_event(event):
             "amount_paid": float(amount_paid),
             "tx_hash": tx_hash,
             "timestamp": time.time(),
-            "service_name": details[2],
-            "price_usd": float(details[3]),
-            "description": details[4],
-            "https_uri": details[5] 
+            "serviceName": details[2],
+            "usdPriceForConsumerMonth": float(details[3]),
+            "serviceDescription": details[4],
+            "url": details[5]
         }
 
         print("🟢 New MCP Event:", record)
@@ -72,7 +72,7 @@ def main():
     try:
         start_block = max(w3.eth.block_number - 100, 0)
         event_filter = contract.events.McpProviderRegistered.create_filter(from_block=start_block)
-        
+
         past_events = event_filter.get_all_entries()
         for event in past_events:
             handle_event(event)
