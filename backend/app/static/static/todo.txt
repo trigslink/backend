@@ -1,1 +1,4 @@
+- Go over style UI, incorporate side bar, make sure all buttons work
+- embelish with similar elements to provider frontend
+
 Once completely finished, put all of `static` in ../
