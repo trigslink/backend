@@ -81,7 +81,7 @@
       margin-right: 10px;
     }
     .avax-icon {
-      height: 14px;
+      height: 20px;
       vertical-align: middle;
       margin-right: 6px;
     }
@@ -131,63 +131,62 @@
     </table>
   </div>
 
-<script>
-  function shortenAddress(addr) {
-    return addr.slice(0, 6) + "..." + addr.slice(-4);
-  }
-
-  async function loadSubscriptions() {
-    const WALLET = localStorage.getItem("connectedWallet");
-    if (!WALLET) {
-      alert("Connect wallet first!");
-      return;
+  <script>
+    function shortenAddress(addr) {
+      return addr.slice(0, 6) + "..." + addr.slice(-4);
     }
-    document.getElementById("wallet-display").textContent = shortenAddress(WALLET);
 
-    try {
-      const [subsRes, mcpsRes] = await Promise.all([
-        fetch(`http://localhost:8000/my_subscriptions?wallet=${WALLET}`),
-        fetch("http://localhost:8000/available_mcps")
-      ]);
+    async function loadSubscriptions() {
+      const WALLET = localStorage.getItem("connectedWallet");
+      if (!WALLET) {
+        alert("Connect wallet first!");
+        return;
+      }
+      document.getElementById("wallet-display").textContent = shortenAddress(WALLET);
 
-      const subs = await subsRes.json();
-      const allMcps = await mcpsRes.json();
+      try {
+        const [subsRes, mcpsRes] = await Promise.all([
+          fetch(`http://localhost:8000/my_subscriptions?wallet=${WALLET}`),
+          fetch("http://localhost:8000/available_mcps")
+        ]);
 
-      const mcpMap = Object.fromEntries(allMcps.map(m => [m.mcp_id.toLowerCase(), m]));
+        const subs = await subsRes.json();
+        const allMcps = await mcpsRes.json();
 
-      const tbody = document.querySelector("#subscribed-list tbody");
-      tbody.innerHTML = "";
+        const mcpMap = Object.fromEntries(allMcps.map(m => [m.mcp_id.toLowerCase(), m]));
 
-      let total = 0;
+        const tbody = document.querySelector("#subscribed-list tbody");
+        tbody.innerHTML = "";
 
-      subs.forEach(sub => {
-        const mcp = mcpMap[sub.mcp_id.toLowerCase()];
-        const serviceName = mcp?.service_name || "Unknown";
-        const logo = mcp?.logo_url || "https://dummyimage.com/24x24/333/fff.png&text=?";
+        let total = 0;
 
-        const avaxAmount = parseFloat(sub.avax_paid);
+        subs.forEach(sub => {
+          const mcp = mcpMap[sub.mcp_id.toLowerCase()];
+          const serviceName = mcp?.service_name || "Unknown";
+          const logo = mcp?.logo_url || "https://dummyimage.com/24x24/333/fff.png&text=?";
 
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td class="logo-cell"><img src="${logo}" /> ${serviceName}</td>
-          <td>${new Date(sub.timestamp * 1000).toLocaleDateString()}</td>
-          <td>${new Date((sub.timestamp + 30 * 24 * 3600) * 1000).toLocaleDateString()}</td>
-          <td><img src="assets/avax_logo.png" class="avax-icon" />${avaxAmount.toFixed(4)} AVAX</td>
-        `;
-        tbody.appendChild(row);
-        total += avaxAmount;
-      });
+          const avaxAmount = parseFloat(sub.avax_paid);
 
-      document.getElementById("total-subscriptions").textContent = subs.length;
-      document.getElementById("total-monthly").innerHTML = `<img src="assets/avax_logo.png" class="avax-icon" />${total.toFixed(2)}`;
-      document.getElementById("total-alltime").innerHTML = `<img src="assets/avax_logo.png" class="avax-icon" />${total.toFixed(2)}`;
-    } catch (e) {
-      console.error("Failed to load subscriptions:", e);
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td class="logo-cell"><img src="${logo}" /> ${serviceName}</td>
+            <td>${new Date(sub.timestamp * 1000).toLocaleDateString()}</td>
+            <td>${new Date((sub.timestamp + 30 * 24 * 3600) * 1000).toLocaleDateString()}</td>
+            <td><img src="assets/avax_logo.png" class="avax-icon" />${avaxAmount.toFixed(4)} AVAX</td>
+          `;
+          tbody.appendChild(row);
+          total += avaxAmount;
+        });
+
+        document.getElementById("total-subscriptions").textContent = subs.length;
+        document.getElementById("total-monthly").innerHTML = `<img src="assets/avax_logo.png" class="avax-icon" />${total.toFixed(2)}`;
+        document.getElementById("total-alltime").innerHTML = `<img src="assets/avax_logo.png" class="avax-icon" />${total.toFixed(2)}`;
+      } catch (e) {
+        console.error("Failed to load subscriptions:", e);
+      }
     }
-  }
 
-  document.addEventListener("DOMContentLoaded", loadSubscriptions);
-</script>
-
+    document.addEventListener("DOMContentLoaded", loadSubscriptions);
+  </script>
 </body>
 </html>
