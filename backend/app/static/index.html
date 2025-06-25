@@ -2,344 +2,285 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Trigslink MCP Dashboard</title>
+  <title>MCP Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    * {
-      box-sizing: border-box;
-    }
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #000;
-      color: #fff;
       margin: 0;
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
-    }
-
-    .sidebar {
-      width: 250px;
-      background: #111827;
-      height: 100vh;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 30px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo img {
-      height: 30px;
-    }
-
-    .menu, .server-box {
-      background: #1f2937;
-      padding: 16px;
-      border-radius: 12px;
-    }
-
-    .cpu-chart {
-      margin-top: auto;
-    }
-
-    .cpu-chart canvas {
-      width: 100%;
-      height: 60px;
-    }
-
-    .main {
-      flex: 1;
-      background: #000;
-    }
-
-    header {
-      background: linear-gradient(to right, #742ef2, #1e40af);
-      padding: 30px 40px;
+      background: #0f0f12;
       color: #fff;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
 
-    header h1 {
-      font-size: 36px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-
-    .wallet-tag {
-      background: #000000;
-      padding: 18px 40px; 
-      border-radius: 999px;
-      font-size: 17px; 
-      color: #e5e7eb;
-      border: 1.5px solid rgba(255, 255, 255, 0.25);
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.06);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 280px;  
-      height: 64px;      
-    }
-
-    .dashboard {
-      padding: 40px;
-    }
-
-    .admin-box {
-  background: rgba(255, 255, 255, 0.07); /* increased opacity from 0.05 → 0.12 */
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-radius: 24px;
-  padding: 30px;
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.06); /* slightly stronger glow */
-  border: 1px solid rgba(255, 255, 255, 0.2); /* more visible border */
+.sidebar {
+  width: 240px;
+  background: #14151a;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100vh;              /* 🔥 forces full vertical height */
+  position: fixed;            /* lock in place */
+  top: 0;
+  left: 0;
 }
 
-    .admin-header {
+
+    .sidebar h2 {
+      color: #fff;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    .sidebar a {
+      display: block;
+      background: #1e1f26;
+      color: #ccc;
+      text-decoration: none;
+      padding: 1rem;
+      border-radius: 12px;
+      transition: 0.2s;
+    }
+
+    .sidebar a:hover {
+      background: #2d2f3a;
+      color: #fff;
+    }
+
+.main {
+  flex: 1;
+  padding: 2rem 3rem 2rem 3rem; /* ← left/right padding balanced */
+  margin-left: 240px;
+}
+
+
+
+    .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
     }
 
-    .admin-header h2 {
-      font-size: 20px;
-      color: #e2e8f0;
+    .header h1 {
+      font-size: 2.2rem;
+      background: linear-gradient(to right, #8a3ffc, #4f9eff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .chainlink-badge {
+      color: #4f9eff;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .wallet-section {
+      margin: 2rem 0;
+      background: #1a1b1f;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .wallet-section button {
+      background: #4f9eff;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 10px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+    }
+
+.mcp-dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mcp-card {
+  width: 100%;
+  max-width: 700px;
+}
+
+
+    .mcp-dashboard h2 {
+      margin-bottom: 1rem;
+    }
+
+.mcp-card {
+  background: #1a1b1f;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;      /* ← More breathing room */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+
+    .mcp-card .info {
       display: flex;
+      gap: 1rem;
       align-items: center;
-      gap: 10px;
     }
 
-    .admin-header h2::before {
-      content: "👤";
+    .mcp-card .icon {
+      font-size: 2rem;
     }
 
-    .cards {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .card {
-      background: #000000;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 28px 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.06);
-      transition: transform 0.2s ease;
-    }
-
-    .card:hover {
-      transform: scale(1.01);
-    }
-
-    .card-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .logo-square {
-      width: 64px;    /* increased size */
-      height: 64px;
-      border-radius: 14px;
-      object-fit: cover;
-      background: #fff;
-    }
-
-
-    .details {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .details h3 {
-      margin: 0;
-      font-size: 18px;  
-      color: #ffffff;
-      font-weight: 600;
-    }
-
-
-    .details p {
-      margin: 3px 0;
-      color: #cbd5e1;
-      font-size: 14px;  
-    }
-
-    .tags {
-      margin-top: 6px;
-      display: flex;
-      gap: 8px;
-    }
-
-    .tag {
-      background: #334155;
-      padding: 4px 10px; 
-      font-size: 13px;
-      color: #93c5fd;
+    .mcp-card .tags span {
+      background: #333;
+      color: #ccc;
+      padding: 0.2rem 0.6rem;
       border-radius: 6px;
+      font-size: 0.75rem;
+      margin-right: 0.5rem;
     }
 
-    .card-right {
-      text-align: right;
-    }
-
-
-    .chart {
-      width: 130px;   
-      height: 60px;   
-    }
-    .pulls {
-      font-size: 15px;
-      color: #ffffff;
-    }
-
-    .last-week {
-      font-size: 13px;
-      color: #9ca3af;
+    .pull-graph {
+      font-size: 0.8rem;
+      color: #888;
     }
   </style>
 </head>
 <body>
   <div class="sidebar">
-    <div class="logo">
-      <img src="assets/trigslink_logo.jpeg" alt="Trigslink" />
-    </div>
-    <a href="/static/consumer_dashboard.html" style="text-decoration: none;">
-      <div class="menu" style="color: white; cursor: pointer;">
-        <h2>MCP Library</h2>
-      </div>
-    </a>
-    <a href="/static/trigsmind.html" style="text-decoration: none;">
-      <div class="menu" style="color: white; cursor: pointer; background: #1e40af;">
-        <h2>TrigsMind</h2>
-      </div>
-    </a>
-    <div class="server-box">
-      <h2>Selected Servers</h2>
-      <p style="font-size: 12px; color: #94a3b8">Add your servers here</p>
-    </div>
-    <div class="cpu-chart">
-      <canvas id="cpuChart"></canvas>
-    </div>
+    <h2>Trigslink</h2>
+    <a href="/static/consumer_mcp_library.html">MCP Library</a>
+    <a href="/static/trigsmind.html">TrigsMind</a>
+    <a href="/static/consumer_dashboard.html">Selected Servers</a>
   </div>
 
   <div class="main">
-    <header>
-      <h1>Your <span style="color:#3b82f6">Nodes</span>, Your <span style="color:#3b82f6">Control</span></h1>
-      <div class="wallet-tag">0xAb580...C9B</div>
-    </header>
+    <div class="header">
+      <h1>YOUR NODES, YOUR CONTROL</h1>
+      <a href="https://chain.link" target="_blank" class="chainlink-badge">Powered by Chainlink</a>
+    </div>
 
-    <div class="dashboard">
-      <div class="admin-box">
-        <div class="admin-header">
-          <h2>Admin Dashboard</h2>
-          <div class="wallet-tag">0xAb580...C9B</div>
+<div class="wallet-section">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h3>Step 1. Connect To Your Account</h3>
+      <p>Link your wallet</p>
+    </div>
+    <div id="walletAddressDisplay" style="color: #aaa;"></div>
+  </div>
+  <button>Connect Wallet</button>
+</div>
+
+
+    <div class="mcp-dashboard">
+      <h2>MCP Dashboard</h2>
+
+      <div class="mcp-card">
+        <div class="info">
+          <div class="icon">📘</div>
+          <div>
+            <strong>mcp / Facebook</strong><br>
+            <small>Updated 2 days ago...</small><br>
+            <div class="tags"><span>SOCIAL NETWORK</span></div>
+          </div>
         </div>
-        <div class="cards" id="mcp-list"></div>
+        <div class="pull-graph">
+          <br>↗↗ Trending
+        </div>
+      </div>
+
+      <div class="mcp-card">
+        <div class="info">
+          <div class="icon">💬</div>
+          <div>
+            <strong>mcp / Slack</strong><br>
+            <small>Updated 2 days ago...</small><br>
+            <div class="tags"><span>COMMUNICATION</span></div>
+          </div>
+        </div>
+        <div class="pull-graph">
+    <br>↗ Popular
+        </div>
+      </div>
+
+      <div class="mcp-card">
+        <div class="info">
+          <div class="icon">🟢</div>
+          <div>
+            <strong>mcp / CoinGecko</strong><br>
+            <small>Updated 1 day ago...</small><br>
+            <div class="tags"><span>CRYPTO DATA</span></div>
+          </div>
+        </div>
+        <div class="pull-graph">
+       <br>↗ Popular
+        </div>
       </div>
     </div>
   </div>
+<script>
+  function shortenAddress(addr) {
+    return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
+  }
 
-  <script>
-    const API = "http://localhost:8000/available_mcps";
-
-    function getConsistentDaysAgo(mcpId) {
-      let hash = 0;
-      for (let i = 0; i < mcpId.length; i++) {
-        hash = mcpId.charCodeAt(i) + ((hash << 5) - hash);
-      }
-      return (Math.abs(hash) % 7) + 1;
+  async function connectWallet() {
+    if (!window.ethereum) {
+      alert("MetaMask is not installed");
+      return;
     }
 
-    async function loadMCPs() {
-      try {
-        const res = await fetch(API);
-        const mcps = await res.json();
-        const container = document.getElementById("mcp-list");
-        container.innerHTML = "";
+    try {
+      await window.ethereum.request({
+        method: "wallet_requestPermissions",
+        params: [{ eth_accounts: {} }],
+      });
 
-        mcps.forEach((mcp) => {
-          const card = document.createElement("div");
-          card.className = "card";
-          card.style.cursor = "pointer";
-          card.onclick = () => {
-            window.location.href = `/static/detail.html?mcp_id=${encodeURIComponent(mcp.mcp_id)}`;
-          };
+      const [account] = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
 
-          card.innerHTML = `
-            <div class="card-left">
-              <img class="logo-square" src="${mcp.logo_url}" alt="logo">
-              <div class="details">
-                <h3>mcp / ${mcp.service_name}</h3>
-                <p>Updated ${getConsistentDaysAgo(mcp.mcp_id)} days ago...</p>
-                <p>${mcp.description}</p>
-                <div class="tags">
-                  <div class="tag">${mcp.category1 || "SOCIAL"}</div>
-                  <div class="tag">${mcp.category2 || "NETWORK"}</div>
-                </div>
-              </div>
-            </div>
-            <div class="card-right">
-              <canvas class="chart" width="100" height="40"></canvas>
-              <div class="pulls"></div>
-              <div class="last-week">Last week</div>
-            </div>
-          `;
-          container.appendChild(card);
+      localStorage.setItem("connectedWallet", account);
+      document.dispatchEvent(
+        new CustomEvent("walletConnected", { detail: account })
+      );
 
-          const canvas = card.querySelector(".chart");
-          const pullsEl = card.querySelector(".pulls");
-          const pullCount = drawChart(canvas);
-          pullsEl.textContent = `Pulls: ${pullCount}`;
-        });
-      } catch (err) {
-        console.error("Error loading MCPs:", err);
-      }
+      const lbl = document.getElementById("walletAddressDisplay");
+      if (lbl) lbl.textContent = `Connected: ${shortenAddress(account)}`;
+
+      const btn = document.querySelector(".wallet-section button");
+      if (btn) btn.textContent = "Disconnect";
+    } catch (err) {
+      console.error("❌ Wallet connection failed", err);
     }
+  }
 
-    function drawChart(canvas) {
-      const ctx = canvas.getContext("2d");
-      const width = canvas.width;
-      const height = canvas.height;
-      const points = [];
-      let current = Math.random() * height * 0.4 + height * 0.3;
-      let sum = 0;
+  function restoreWallet() {
+    const saved = localStorage.getItem("connectedWallet");
+    if (saved) {
+      const lbl = document.getElementById("walletAddressDisplay");
+      if (lbl) lbl.textContent = `Connected: ${shortenAddress(saved)}`;
 
-      for (let i = 0; i < 10; i++) {
-        const direction = Math.random() > 0.4 ? 1 : -1;
-        const change = Math.random() * 6;
-        current += direction * change;
-        current = Math.max(10, Math.min(height - 10, current));
-        points.push(current);
-        sum += current;
-      }
-
-      ctx.clearRect(0, 0, width, height);
-      ctx.beginPath();
-      ctx.moveTo(0, height - points[0]);
-      for (let i = 1; i < points.length; i++) {
-        const x = (i / (points.length - 1)) * width;
-        const y = height - points[i];
-        ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = "#3b82f6";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      const average = sum / points.length;
-      return Math.floor(((height - average) / height) * 100 + 30);
+      const btn = document.querySelector(".wallet-section button");
+      if (btn) btn.textContent = "Disconnect";
     }
+  }
 
-    loadMCPs();
-  </script>
+  function disconnectWallet() {
+    localStorage.removeItem("connectedWallet");
+
+    const lbl = document.getElementById("walletAddressDisplay");
+    if (lbl) lbl.textContent = "";
+
+    const btn = document.querySelector(".wallet-section button");
+    if (btn) btn.textContent = "Connect Wallet";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    restoreWallet();
+
+    document.querySelector(".wallet-section button").addEventListener("click", () => {
+      const connected = localStorage.getItem("connectedWallet");
+      connected ? disconnectWallet() : connectWallet();
+    });
+  });
+</script>
 </body>
 </html>
