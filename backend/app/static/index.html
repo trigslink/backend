@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MCP Dashboard</title>
+  <title>My MCPs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -13,19 +13,18 @@
       color: #fff;
     }
 
-.sidebar {
-  width: 240px;
-  background: #14151a;
-  padding: 1.5rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  height: 100vh;              /* 🔥 forces full vertical height */
-  position: fixed;            /* lock in place */
-  top: 0;
-  left: 0;
-}
-
+    .sidebar {
+      width: 240px;
+      background: #14151a;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
 
     .sidebar h2 {
       color: #fff;
@@ -48,13 +47,11 @@
       color: #fff;
     }
 
-.main {
-  flex: 1;
-  padding: 2rem 3rem 2rem 3rem; /* ← left/right padding balanced */
-  margin-left: 240px;
-}
-
-
+    .main {
+      flex: 1;
+      padding: 2rem 3rem 2rem 3rem;
+      margin-left: 240px;
+    }
 
     .header {
       display: flex;
@@ -92,32 +89,24 @@
       cursor: pointer;
     }
 
-.mcp-dashboard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.mcp-card {
-  width: 100%;
-  max-width: 700px;
-}
-
-
-    .mcp-dashboard h2 {
-      margin-bottom: 1rem;
+    .mcp-dashboard {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-.mcp-card {
-  background: #1a1b1f;
-  border-radius: 12px;
-  padding: 1rem 1.5rem;
-  margin-bottom: 1.5rem;      /* ← More breathing room */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-}
-
+    .mcp-card {
+      width: 100%;
+      max-width: 700px;
+      background: #1a1b1f;
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
 
     .mcp-card .info {
       display: flex;
@@ -125,8 +114,10 @@
       align-items: center;
     }
 
-    .mcp-card .icon {
-      font-size: 2rem;
+    .mcp-card img {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
     }
 
     .mcp-card .tags span {
@@ -149,7 +140,7 @@
     <h2>Trigslink</h2>
     <a href="/static/consumer_mcp_library.html">MCP Library</a>
     <a href="/static/trigsmind.html">TrigsMind</a>
-    <a href="/static/consumer_dashboard.html">Selected Servers</a>
+    <a href="/static/consumer_dashboard.html">Purchase history</a>
   </div>
 
   <div class="main">
@@ -158,129 +149,125 @@
       <a href="https://chain.link" target="_blank" class="chainlink-badge">Powered by Chainlink</a>
     </div>
 
-<div class="wallet-section">
-  <div style="display: flex; justify-content: space-between; align-items: center;">
-    <div>
-      <h3>Step 1. Connect To Your Account</h3>
-      <p>Link your wallet</p>
+    <div class="wallet-section">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3>Step 1. Connect To Your Account</h3>
+          <p>Link your wallet</p>
+        </div>
+        <div id="walletAddressDisplay" style="color: #aaa;"></div>
+      </div>
+      <button>Connect Wallet</button>
     </div>
-    <div id="walletAddressDisplay" style="color: #aaa;"></div>
-  </div>
-  <button>Connect Wallet</button>
-</div>
-
 
     <div class="mcp-dashboard">
       <h2>MCP Dashboard</h2>
-
-      <div class="mcp-card">
-        <div class="info">
-          <div class="icon">📘</div>
-          <div>
-            <strong>mcp / Facebook</strong><br>
-            <small>Updated 2 days ago...</small><br>
-            <div class="tags"><span>SOCIAL NETWORK</span></div>
-          </div>
-        </div>
-        <div class="pull-graph">
-          <br>↗↗ Trending
-        </div>
-      </div>
-
-      <div class="mcp-card">
-        <div class="info">
-          <div class="icon">💬</div>
-          <div>
-            <strong>mcp / Slack</strong><br>
-            <small>Updated 2 days ago...</small><br>
-            <div class="tags"><span>COMMUNICATION</span></div>
-          </div>
-        </div>
-        <div class="pull-graph">
-    <br>↗ Popular
-        </div>
-      </div>
-
-      <div class="mcp-card">
-        <div class="info">
-          <div class="icon">🟢</div>
-          <div>
-            <strong>mcp / CoinGecko</strong><br>
-            <small>Updated 1 day ago...</small><br>
-            <div class="tags"><span>CRYPTO DATA</span></div>
-          </div>
-        </div>
-        <div class="pull-graph">
-       <br>↗ Popular
-        </div>
-      </div>
+      <div id="subscriptionsContainer">Loading...</div>
     </div>
   </div>
-<script>
-  function shortenAddress(addr) {
-    return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
-  }
 
-  async function connectWallet() {
-    if (!window.ethereum) {
-      alert("MetaMask is not installed");
-      return;
+  <script>
+    function shortenAddress(addr) {
+      return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
     }
 
-    try {
-      await window.ethereum.request({
-        method: "wallet_requestPermissions",
-        params: [{ eth_accounts: {} }],
-      });
+    async function connectWallet() {
+      if (!window.ethereum) {
+        alert("MetaMask is not installed");
+        return;
+      }
 
-      const [account] = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
+      try {
+        await window.ethereum.request({ method: "wallet_requestPermissions", params: [{ eth_accounts: {} }] });
+        const [account] = await window.ethereum.request({ method: "eth_requestAccounts" });
 
-      localStorage.setItem("connectedWallet", account);
-      document.dispatchEvent(
-        new CustomEvent("walletConnected", { detail: account })
-      );
+        localStorage.setItem("connectedWallet", account);
+        document.dispatchEvent(new CustomEvent("walletConnected", { detail: account }));
+
+        const lbl = document.getElementById("walletAddressDisplay");
+        if (lbl) lbl.textContent = `Connected: ${shortenAddress(account)}`;
+
+        const btn = document.querySelector(".wallet-section button");
+        if (btn) btn.textContent = "Disconnect";
+
+        loadSubscriptions(account);
+      } catch (err) {
+        console.error("❌ Wallet connection failed", err);
+      }
+    }
+
+    function restoreWallet() {
+      const saved = localStorage.getItem("connectedWallet");
+      if (saved) {
+        const lbl = document.getElementById("walletAddressDisplay");
+        if (lbl) lbl.textContent = `Connected: ${shortenAddress(saved)}`;
+
+        const btn = document.querySelector(".wallet-section button");
+        if (btn) btn.textContent = "Disconnect";
+
+        loadSubscriptions(saved);
+      }
+    }
+
+    function disconnectWallet() {
+      localStorage.removeItem("connectedWallet");
 
       const lbl = document.getElementById("walletAddressDisplay");
-      if (lbl) lbl.textContent = `Connected: ${shortenAddress(account)}`;
+      if (lbl) lbl.textContent = "";
 
       const btn = document.querySelector(".wallet-section button");
-      if (btn) btn.textContent = "Disconnect";
-    } catch (err) {
-      console.error("❌ Wallet connection failed", err);
+      if (btn) btn.textContent = "Connect Wallet";
+
+      document.getElementById("subscriptionsContainer").innerHTML = "";
     }
-  }
 
-  function restoreWallet() {
-    const saved = localStorage.getItem("connectedWallet");
-    if (saved) {
-      const lbl = document.getElementById("walletAddressDisplay");
-      if (lbl) lbl.textContent = `Connected: ${shortenAddress(saved)}`;
+    async function loadSubscriptions(wallet) {
+      try {
+        const subsRes = await fetch(`http://localhost:8000/my_subscriptions?wallet=${wallet}`);
+        const allRes = await fetch("http://localhost:8000/available_mcps");
+        const subs = await subsRes.json();
+        const allMcps = await allRes.json();
 
-      const btn = document.querySelector(".wallet-section button");
-      if (btn) btn.textContent = "Disconnect";
+        const mcpById = Object.fromEntries(allMcps.map(mcp => [mcp.mcp_id, mcp]));
+
+        const container = document.getElementById("subscriptionsContainer");
+        container.innerHTML = "";
+
+        subs.forEach(sub => {
+          const mcp = mcpById[sub.mcp_id];
+          if (!mcp) return;
+
+          const card = document.createElement("div");
+          card.className = "mcp-card";
+
+          card.innerHTML = `
+            <div class="info">
+              <img src="${mcp.logo_url}" alt="Logo" />
+              <div>
+                <strong>${mcp.service_name || mcp.serviceName}</strong><br>
+                <small>Status: ${sub.status}</small><br>
+                <div class="tags"><span>${sub.avax_paid.toFixed(3)} AVAX</span></div>
+              </div>
+            </div>
+            <div class="pull-graph">
+              Started ${new Date(sub.start_timestamp * 1000).toLocaleDateString()}
+            </div>
+          `;
+
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error("❌ Failed to load subscriptions", err);
+      }
     }
-  }
 
-  function disconnectWallet() {
-    localStorage.removeItem("connectedWallet");
-
-    const lbl = document.getElementById("walletAddressDisplay");
-    if (lbl) lbl.textContent = "";
-
-    const btn = document.querySelector(".wallet-section button");
-    if (btn) btn.textContent = "Connect Wallet";
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    restoreWallet();
-
-    document.querySelector(".wallet-section button").addEventListener("click", () => {
-      const connected = localStorage.getItem("connectedWallet");
-      connected ? disconnectWallet() : connectWallet();
+    document.addEventListener("DOMContentLoaded", () => {
+      restoreWallet();
+      document.querySelector(".wallet-section button").addEventListener("click", () => {
+        const connected = localStorage.getItem("connectedWallet");
+        connected ? disconnectWallet() : connectWallet();
+      });
     });
-  });
-</script>
+  </script>
 </body>
 </html>
