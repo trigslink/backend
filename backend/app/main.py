@@ -1,18 +1,28 @@
-from fastapi import FastAPI, UploadFile, Request, File, Form, Query
-from fastapi.responses import JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
-from . import mcp_manager
-from . import blockchain
-from .consumer_blockchain import get_subscriptions
-from .AI.agents import run_agent_with_tool
 import json
-from pathlib import Path
-import shutil
-import cloudinary # type: ignore
-import cloudinary.uploader # type: ignore
 import os
+import shutil
+from pathlib import Path
+
+import cloudinary  # type: ignore
+import cloudinary.uploader  # type: ignore
+from fastapi import FastAPI, File, Form, Query, Request, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+
+from . import blockchain, mcp_manager
+from .AI.agents import run_agent_with_tool
+from .consumer_blockchain import get_subscriptions
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or specify ["http://localhost:5500"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "db.json"
