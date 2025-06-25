@@ -1,2 +1,1 @@
-Delete all the non index htmls in ../
 Once completely finished, put all of `static` in ../
