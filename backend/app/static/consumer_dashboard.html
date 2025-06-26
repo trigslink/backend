@@ -13,7 +13,7 @@
       display: flex;
     }
     .sidebar {
-      width: 250px;
+      width: 240px;
       background-color: #1e293b;
       height: 100vh;
       padding: 20px;
@@ -85,17 +85,53 @@
       vertical-align: middle;
       margin-right: 6px;
     }
+
+    .sidebar-section {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.sidebar-section h3 {
+  font-size: 0.95rem;
+  color: #ccc;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+}
+
+.sidebar-btn {
+  display: inline-block;
+  width: 100%;
+  background: #334155;
+  color: #eee;
+  padding: 0.8rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.sidebar-btn:hover {
+  background: #475569;
+  color: white;
+  transform: scale(1.03);
+}
+
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <div class="logo">
-      <img src="assets/trigslink_logo.jpeg" alt="Trigslink" />
-    </div>
-    <div class="section">MCP Subscriptions</div>
-    <div class="section">CPU Usage</div>
-    <div class="section">AI Agent</div>
+<div class="sidebar">
+  <img src="assets/trigslink_logo.jpeg" alt="Trigslink" style="width: 120px; margin: 0 auto 1.5rem;" />
+
+       <div class="sidebar-section">
+        <h3>🏠 Home</h3>
+        <a class="sidebar-btn" href="/">Return to dashboard</a>
+      </div>
+
+  <div class="sidebar-section">
+    <h3>🤖 AI Agent</h3>
+    <a href="/static/trigsmind.html" class="sidebar-btn">Launch Agent</a>
   </div>
+</div>
 
   <div class="main">
     <header>
