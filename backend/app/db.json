@@ -1,0 +1,25 @@
+[
+  {
+    "mcp_id": "0x77db66390b1d3de5d0a1220adae8b66b1a7409ef_66",
+    "wallet": "0x77db66390B1D3DE5d0A1220aDAe8B66b1a7409Ef",
+    "service_name": "Yield Optimizerr",
+    "description": "Yield Optimizerr",
+    "price": 1e+18,
+    "duration": "N/A",
+    "tx_hash": "0x49f0159438a61ba5ad0f6c4dec5048ea8538e05ff27cda142a1d89f029c16946",
+    "https_uri": "https://became-feedback-treasurer-rp.trycloudflare.com",
+    "logo_url": "https://res.cloudinary.com/dgvb4ap8o/image/upload/v1751211553/ty5enkougr4l47v4ovq6.png"
+  },
+  {
+    "mcp_id": "0x77db66390b1d3de5d0a1220adae8b66b1a7409ef_70",
+    "wallet": "0x77db66390B1D3DE5d0A1220aDAe8B66b1a7409Ef",
+    "provider_nonce": 70,
+    "amount_paid": 0.550357732526142,
+    "tx_hash": "6902af73fdd9166a8bb18ff0c75a340d60a9266c2ae00916f23f1c15de9976dc",
+    "timestamp": 1751234565.1920485,
+    "serviceName": "Yield Optimizer MCP",
+    "usdPriceForConsumerMonth": 2e+18,
+    "serviceDescription": "This is yield optimizer MCP",
+    "url": "https://explained-issues-curve-legend.trycloudflare.com"
+  }
+]
