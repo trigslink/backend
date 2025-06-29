@@ -12,23 +12,51 @@ def load_tool_from_mcp(mcp_metadata_url: str, env_vars: dict):
     except Exception as e:
         raise ValueError(f"❌ Failed to fetch MCP metadata from {mcp_metadata_url}: {e}")
 
-    def dynamic_func(input: str):
-        payload = {"input": input, **env_vars}
+    def dynamic_func(user_input: str):
+        payload = {}
+
+        # ✅ Detect wallet and chain from user input
+        parts = user_input.strip().split()
+        wallet = next((p for p in parts if p.lower().startswith("0x")), None)
+        chain = next(
+            (p.lower() for p in parts if p.lower() in ["ethereum", "avalanche", "arbitrum", "optimism", "base", "solana"]),
+            None
+        )
+
+        if wallet and chain:
+            payload["wallet"] = wallet
+            payload["chain"] = chain
+        else:
+            payload["input"] = user_input
+
+        # ✅ Attach OpenAI credentials
+        payload["OPENAI_API_KEY"] = env_vars.get("OPENAI_API_KEY")
+        payload["MODEL"] = env_vars.get("MODEL", "gpt-4o")
+
         try:
-            res = requests.post(metadata["endpoint"], json=payload, timeout=10)
+            print(f"🔗 MCP Endpoint: {metadata['endpoint']}")
+            print(f"📦 Payload Sent: {payload}")
+
+            res = requests.post(metadata["endpoint"], json=payload, timeout=60)
             res.raise_for_status()
-            return res.json().get("output", "No response from MCP.")
+            return res.json().get("output", "❌ No response from MCP.")
         except Exception as e:
             return f"❌ MCP Error: {str(e)}"
 
     return Tool.from_function(
-        name=metadata.get("name", "MCP Tool"),
-        description=metadata.get("description", "Interact with MCP using natural language."),
+        name=metadata.get("service_name", "MCP Tool"),
+        description=metadata.get("description", "Interact with MCP."),
         func=dynamic_func,
     )
 
 
-def run_agent_with_tool(openai_api_key: str, user_prompt: str, mcp_metadata_url: str, env_vars: dict, openai_model: str = "gpt-4o"):
+def run_agent_with_tool(
+    openai_api_key: str,
+    user_prompt: str,
+    mcp_metadata_url: str,
+    env_vars: dict,
+    openai_model: str = "gpt-4o"
+):
     try:
         tool = load_tool_from_mcp(mcp_metadata_url, env_vars)
         llm = ChatOpenAI(openai_api_key=openai_api_key, temperature=0.3, model=openai_model)

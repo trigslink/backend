@@ -4,12 +4,7 @@
   <meta charset="UTF-8" />
   <title>TrigsMind</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * {margin: 0; padding: 0; box-sizing: border-box;}
     body {
       display: flex;
       height: 100vh;
@@ -17,7 +12,6 @@
       font-family: 'Segoe UI', sans-serif;
       color: white;
     }
-
     .sidebar {
       width: 280px;
       background: #0d1117;
@@ -26,12 +20,10 @@
       flex-direction: column;
       gap: 20px;
     }
-
     .sidebar img {
       height: 40px;
       margin-bottom: 20px;
     }
-
     .sidebar button {
       width: 100%;
       padding: 12px;
@@ -42,13 +34,11 @@
       font-weight: 600;
       cursor: pointer;
     }
-
     .label {
       font-size: 15px;
       color: #e2e8f0;
       margin-bottom: 8px;
     }
-
     select, textarea {
       width: 100%;
       border-radius: 8px;
@@ -58,42 +48,33 @@
       background: #1f2937;
       color: white;
     }
-
-    select {
-      height: 44px;
-    }
-
+    select {height: 44px;}
     textarea {
       height: 130px;
       resize: none;
       font-family: monospace;
       margin-bottom: 10px;
     }
-
     .main {
       flex: 1;
       display: flex;
       flex-direction: column;
       background: #18181b;
     }
-
     .header {
       background: linear-gradient(to right, #742ef2, #1e40af);
       padding: 32px;
       text-align: center;
       border-radius: 0 0 16px 16px;
     }
-
     .header h1 {
       font-size: 32px;
       margin-bottom: 6px;
     }
-
     .header .subheader {
       font-size: 15px;
       color: #d1d5db;
     }
-
     .chat-area {
       flex: 1;
       margin: 20px 40px;
@@ -106,35 +87,30 @@
       overflow-y: auto;
       transition: all 0.3s ease;
     }
-
     .message {
       margin-bottom: 14px;
       line-height: 1.6;
       max-width: 75%;
       word-wrap: break-word;
     }
-
     .message.user {
       align-self: flex-end;
       background: #1e3a8a;
       padding: 12px 18px;
       border-radius: 16px 16px 0 16px;
     }
-
     .message.agent {
       align-self: flex-start;
       background: #334155;
       padding: 12px 18px;
       border-radius: 16px 16px 16px 0;
     }
-
     .chat-input {
       display: flex;
       padding: 20px 40px;
       border-top: 1px solid #222;
       background: #0f0f0f;
     }
-
     .chat-input input {
       flex: 1;
       padding: 14px;
@@ -144,7 +120,6 @@
       background: #1f1f1f;
       color: white;
     }
-
     .chat-input button {
       margin-left: 12px;
       padding: 14px 26px;
@@ -157,6 +132,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="sidebar">
     <img src="assets/trigslink_logo.jpeg" alt="Trigslink" />
@@ -175,9 +151,8 @@
     <div>
       <div class="label">🔐 Add your Credentials</div>
       <textarea id="envVars" placeholder='{
-  "OPENAI_API_KEY": "",
-  "MODEL": "gpt-4o",
-  "ACCUWEATHER_API_KEY": ""
+  "openai_api_key": "",
+  "model": "gpt-4o"
 }'></textarea>
       <button onclick="submitCreds()">Submit</button>
     </div>
@@ -240,15 +215,21 @@
     }
 
     async function sendMessage() {
-      const prompt = document.getElementById("userInput").value;
-      const mcpId = document.getElementById("mcpSelect").value;
+      const promptRaw = document.getElementById("userInput").value.trim();
+      const mcpId = document.getElementById("mcpSelect").value.trim();
 
-      if (!prompt || !mcpId || !userCreds.OPENAI_API_KEY) {
+      const openaiKey = userCreds["openai_api_key"] || userCreds["OPENAI_API_KEY"];
+      const openaiModel = userCreds["model"] || userCreds["MODEL"];
+
+      if (!promptRaw || !mcpId || !openaiKey) {
         alert("⚠️ Please fill all required fields!");
         return;
       }
 
-      appendMessage(prompt, "user");
+      // 🔥 Force prompt to lowercase for consistency
+      const prompt = promptRaw.toLowerCase();
+
+      appendMessage(promptRaw, "user");
       document.getElementById("userInput").value = "";
 
       const response = await fetch('/agent_query', {
@@ -257,14 +238,14 @@
         body: JSON.stringify({
           mcp_id: mcpId,
           user_prompt: prompt,
-          openai_api_key: userCreds.OPENAI_API_KEY,
-          openai_model: userCreds.MODEL,
+          openai_api_key: openaiKey,
+          openai_model: openaiModel,
           env_vars: userCreds
         })
       });
 
       const data = await response.json();
-      appendMessage(data.response || "No response", "agent");
+      appendMessage(data.response || "❌ No response from agent", "agent");
     }
 
     loadMCPs();
