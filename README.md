@@ -117,12 +117,7 @@ docker-compose up --build -d
 docker-compose logs -f
 ```
 
-### Kubernetes (Helm)
-```bash
-helm install mcp-backend ./charts \
-  --set cloudinary.secret="your-secret" \
-  --set replicaCount=3
-```
+
 
 ### Environment Variables
 | Variable | Required | Description |
@@ -132,18 +127,7 @@ helm install mcp-backend ./charts \
 | `BLOCKCHAIN_RPC_URL` | Yes | Ethereum node RPC endpoint |
 | `OPENAI_DEFAULT_MODEL` | No | Default AI model (default: gpt-4) |
 
-## Monitoring
 
-Built-in monitoring endpoints:
-```http
-GET /healthcheck - Service health status
-GET /metrics - Prometheus-formatted metrics
-```
-
-Recommended monitoring stack:
-- Prometheus + Grafana
-- Sentry for error tracking
-- Logz.io for log aggregation
 
 ## 🔐 Security
 
@@ -169,7 +153,7 @@ MIT License - Full text available in [LICENSE](LICENSE).
 ## 📧 Contact
 
 **Technical Support**  
-Email: dev-support@trigslink.com  
+Email: trigslink@gmail.com
 Youtube: [@trigslink](https://www.youtube.com/@trigslink)
 
 **Business Inquiries**  
