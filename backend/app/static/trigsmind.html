@@ -199,6 +199,30 @@
       }
     }
 
+    function appendMessageTypingEffect(content, sender = "agent") {
+      const box = document.getElementById("chatBox");
+      const div = document.createElement("div");
+      div.className = `message ${sender}`;
+      box.appendChild(div);
+
+      if (!hasInteracted) {
+        box.style.justifyContent = "flex-start";
+        hasInteracted = true;
+      }
+
+      let index = 0;
+      function typeCharacter() {
+        if (index < content.length) {
+          div.textContent += content.charAt(index);
+          index++;
+          div.scrollIntoView({ behavior: "smooth" });
+          setTimeout(typeCharacter, 18); // Typing speed in milliseconds
+        }
+      }
+
+      typeCharacter();
+    }
+
     function appendMessage(content, sender = "agent") {
       const box = document.getElementById("chatBox");
       const div = document.createElement("div");
@@ -226,7 +250,6 @@
         return;
       }
 
-      // 🔥 Force prompt to lowercase for consistency
       const prompt = promptRaw.toLowerCase();
 
       appendMessage(promptRaw, "user");
@@ -245,7 +268,7 @@
       });
 
       const data = await response.json();
-      appendMessage(data.response || "❌ No response from agent", "agent");
+      appendMessageTypingEffect(data.response || "❌ No response from agent", "agent");
     }
 
     loadMCPs();
