@@ -182,4 +182,8 @@ MIT License - Full text available in [LICENSE](LICENSE).
 
 ---
 
+<<<<<<< HEAD
 *© 2025 Trigslink. All rights reserved.*
+=======
+*© 2025 Trigslink. All rights reserved.*
+>>>>>>> 7bb6a94 (WIP: before rebase)

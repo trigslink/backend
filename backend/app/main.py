@@ -27,11 +27,6 @@ app.add_middleware(
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "db.json"
 
-app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
-
-@app.get("/")
-def serve_index():
-    return FileResponse(BASE_DIR / "static" / "index.html")
 
 cloudinary.config(
     cloud_name="dgvb4ap8o",
